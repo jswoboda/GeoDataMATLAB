@@ -54,7 +54,9 @@ classdef GeoData
         function write_h5(self,filename)
             % This will write out the h5 file in our defined format.
             proplist = properties(self);
-            
+%             file_id  = H5F.create(filename, 'H5F_ACC_TRUNC', ...
+%                              'H5P_DEFAULT', 'H5P_DEFAULT');
+%             H5F.close(file_id);            
             for k = 1:length(proplist)
                 prop1 = self.(proplist{k});
                 if isa(prop1,'struct')
@@ -67,8 +69,27 @@ classdef GeoData
                     end
                 else
                     location = ['/',proplist{k}];
-                    h5create(filename,location,size(prop1));
-                    h5write(filename,location,prop1);
+                    % TODO make this into a seperate function
+                    % For some god damn reason matlab can not write strings
+                    % to HDF files so for now we have this bull shit.
+                    if ischar(prop1)
+%                        
+                        file_id = H5F.open(filename,'H5F_ACC_RDWR','H5P_DEFAULT');
+                        space_id = H5S.create('H5S_SCALAR');
+                        stype = H5T.copy('H5T_C_S1'); 
+                        sz = numel(prop1);  
+                        H5T.set_size(stype,sz);
+                        
+                        dataset_id = H5D.create(file_id,proplist{k}, ...
+                            stype,space_id,'H5P_DEFAULT');
+                        H5D.write(dataset_id,stype,'H5S_ALL','H5S_ALL','H5P_DEFAULT',prop1);
+                        H5D.close(dataset_id)
+                        H5S.close(space_id)
+                        H5F.close(file_id);
+                    else % for none char values.
+                        h5create(filename,location,size(prop1));
+                        h5write(filename,location,prop1);
+                    end
                 end
             end
         end
