@@ -12,6 +12,7 @@ for k = 1:length(varnames)
     ivar = varnames{k};
     isstructvar = false;
     groupnames = {fileinfo.GroupHierarchy.Groups(:).Name};
+    % for the structs
     for l = 1:length(groupnames)
         igro = groupnames{l};
         if strcmp(ivar,igro(2:end))
@@ -22,7 +23,8 @@ for k = 1:length(varnames)
             for m=1:length(setnames)
                 iset = setnames{m};
                 isetname = iset(length(ivar)+3:end);
-                tempstruct.(isetname) = h5read(filename,iset);
+                temparr = h5read(filename,iset);
+                tempstruct.(isetname) = permute(temparr,ndims(temparr):-1:1);
             end
             varargout{k} = tempstruct;
         end
@@ -30,11 +32,16 @@ for k = 1:length(varnames)
     if isstructvar
         continue;
     end
+    % For everything else.
     setnames = {fileinfo.GroupHierarchy.Datasets(:).Name};
     for l = 1:length(setnames)
         iset = setnames{l};
         if strcmp(ivar,iset(2:end))
-            varargout{k} = h5read(filename,iset);
+            temparr = h5read(filename,iset);
+            if ~ischar(temparr)
+                temparr=permute(temparr,ndims(temparr):-1:1);
+            end
+            varargout{k} = temparr;
         end
     end
 end

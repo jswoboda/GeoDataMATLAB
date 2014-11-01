@@ -63,9 +63,10 @@ classdef GeoData
                     fnames = fieldnames(prop1);
                     for l = 1:length(fnames)
                         value = prop1.(fnames{l});
+                        rvalue = permute(value,ndims(value):-1:1);
                         location = ['/',proplist{k},'/',fnames{l}];
-                        h5create(filename,location,size(value));
-                        h5write(filename,location,value)
+                        h5create(filename,location,size(rvalue));
+                        h5write(filename,location,rvalue)
                     end
                 else
                     location = ['/',proplist{k}];
@@ -87,8 +88,9 @@ classdef GeoData
                         H5S.close(space_id)
                         H5F.close(file_id);
                     else % for none char values.
-                        h5create(filename,location,size(prop1));
-                        h5write(filename,location,prop1);
+                        rprop = permute(prop1,ndims(prop1):-1:1);
+                        h5create(filename,location,size(rprop));
+                        h5write(filename,location,rprop);
                     end
                 end
             end
