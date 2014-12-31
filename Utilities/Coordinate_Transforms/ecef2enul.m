@@ -1,6 +1,6 @@
-function ENU = ecef2enu(ECEF,LatLongHeight)
-% ecef2enu4.m
-% ENU = ecef2enu(ECEF,LatLongHeight)
+function ENU = ecef2enul(ECEF,LatLongHeight)
+% ecef2enul.m
+% ENU = ecef2enul(ECEF,LatLongHeight)
 % by John Swoboda 1/10/2013
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Description

@@ -68,7 +68,7 @@ for k = 1:length(all_paths_cell)
         path_log(k) = false;
     end
     % Keep the test directory out of the path
-    if isempty(strfind(all_paths_cell{k},[filesep,'Test']))
+    if ~isempty(strfind(all_paths_cell{k},[filesep,'Test']))
         path_log(k) = false;
     end
     % Some times this adds empty strings to the path

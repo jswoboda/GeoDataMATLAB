@@ -11,6 +11,7 @@ classdef GeoData
     end
     
     methods
+        %% Init
         function self = GeoData(readmethod,varargin)
             % This function will be the contructor for the GeoData class.
             % The two inputs are a file handle and the set of inputs for
@@ -18,7 +19,7 @@ classdef GeoData
             % below.
             [self.data,self.coordnames,self.dataloc,self.sensorloc,self.times] = readmethod(varargin{:});
         end
-        
+        %% == ~=
         function out = eq(self,GD2)
             % This is the == operorator for the GeoData class 
             proplist = properties(self);
@@ -43,14 +44,74 @@ classdef GeoData
             % This is the ~= operorator for the GeoData class 
             out = ~(GD==GD2);
         end
-        
+        %% datanames
         function dnames = datanames(GD)
             % This will output a cell array of strings which hold the data
             % names.
             dnames = fieldnames(GD.data);
         end
-        
-        
+        %% Interpolate
+        function interpolate(self,new_coords,newcoordname,varargin)
+            % This will interpolate the data
+            
+            if nargin <4
+                method = 'linear';
+                fill_value = nan;
+            elseif nargin <5
+                method = varargin{1};
+                fill_value = nan;
+            else
+                method = varargin{1};
+                fill_value = varargin{2};
+            end
+            
+            curavalmethods = {'linear', 'nearest', 'cubic','natural'};
+            interpmethods = {'linear', 'nearest', 'cubic','natural'};
+            if ~any(strcmp(curavalmethods,method))
+                error(['Must be one of the following methods: ', strjoin(curavalmethods,', ')]);
+            end
+            Nt = size(self.times,1);
+            NNlocs = size(new_coords,1);
+
+
+            curcoords = self.changecoords(newcoordname);
+            % Loop through parameters and create temp variable
+            paramnames = fieldnames(self.data);
+            for iparam =1:length(paramnames)
+                
+                iparamn = paramnames{iparam};
+                New_param = zeros(NNlocs,Nt);
+                for itime = 1:Nt
+
+                    curparam =self.data.(iparam)(:,itime);
+                    if any(strcmp(method,interpmethods))
+                        F = scatteredInterpolant(curcoords(1,:), curcoords(2,:), curcoords(3,:)...
+                            ,curparam,method,fill_value);
+                        intparam = F(curcoords(1,:),curcoords(2,:),curcoords(3,:));
+                        New_param(:,itime)= intparam;
+                    end
+                end
+                self.data{iparamn} = New_param;
+                
+            end
+            self.dataloc = new_coords;
+            self.coordnames=newcoordname;
+       
+        end
+        %% Coordinate change
+        function oc = changecoords(self,newcoordname)
+            cc = self.dataloc;
+            if strcmpi(self.coordnames,'spherical')||strcmpi(newcoordname,'cartisian')
+                [x,y,z] = sphere2cart(cc(:,1),cc(:,2),cc(:,3));
+                oc = [x,y,z];
+            elseif strcmpi(self.coordnames,'cartisian')||strcmpi(newcoordname,'spherical')
+                [r,az,el] = cart2sphere(cc(:,1),cc(:,2),cc(:,3));
+                oc = [r,az,el];
+            else strcmpi(self.coordnames,newcoordname)
+                oc = cc;
+            end
+        end
+        %% Write out
         function write_h5(self,filename)
             % This will write out the h5 file in our defined format.
             proplist = properties(self);
