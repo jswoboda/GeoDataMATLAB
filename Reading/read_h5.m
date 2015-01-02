@@ -2,7 +2,13 @@ function [ varargout ] = read_h5( filename )
 %% read_h5.m
 % By John Swoboda
 % This function will read in data from the specifed h5 format for the
-% GeoData class. This 
+% GeoData class.
+% Inputs
+% filename - A string for the file name that holds the data.
+% Output
+% Varargout - A cell array with the GeoData values. See GeoData
+% Documentation for details.
+% {'data','coordnames','dataloc','sensorloc','times'};
 
 varnames = {'data','coordnames','dataloc','sensorloc','times'};
 

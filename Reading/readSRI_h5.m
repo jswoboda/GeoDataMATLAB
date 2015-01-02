@@ -2,14 +2,21 @@ function [ varargout ] = readSRI_h5( varargin )
 %% Description: read_SRI
 % By Andrew Lee
 % This function will read the SRI format data into the Geodata format structure.
-
+% Input
+% filename - A string for the filename with the data.
+% parameter - A cell array with the parameters names that are desired.
+% timebounds - A vector of start and end times in posix.
+% Output
+% Varargout - A cell array with the GeoData values. See GeoData
+% Documentation for details.
+% {'data','coordnames','dataloc','sensorloc','times'};
 %% Variable Arguments Out
 varnames = {'data','coordnames','dataloc','sensorloc','times'};
 varargout = cell(1,length(varnames));
 %% Variable Arguements In
 filename = varargin{1};
 parameter = varargin{2};
-timebound = varargin{3};
+
 
 %% Load SRI H5 file
 
@@ -22,24 +29,23 @@ coordnames = 'Spherical';
 varargout{2} = coordnames;
 
 %% Load times
-loadtimes = hdf5read(filename,'/Time/UnixTime');
+loadtimes = double(hdf5read(filename,'/Time/UnixTime')');
 
-%Time Conversion from Unix to MATLAB time
-l=size(loadtimes);
-mtime = zeros(l(1),l(2));
-for i1 = 1:l(1),
-    for i2 = 1:l(2),
-    mtime(i1,i2) = datenum([1970 1 1 0 0 double(loadtimes(i1,i2))]);
+if nargin <3
+    times = loadtimes;
+    T1 = 1;
+    T2 = size(loadtimes,1);
+else 
+    timebound = varargin{3};
+    if isa(timebound,'cell')
+       timebound = datestr2unix(timebound);
     end
-end
-
-if timebound ~= 0
-    T1 = find(mtime(1,:) >= timebound(1), 1, 'first');
-    T2 = find(mtime(2,:) >= timebound(2), 1, 'first');
+    T1 = find(loadtimes(:,1) >= timebound(1), 1, 'first');
+    T2 = find(loadtimes(:,2) >= timebound(2), 1, 'first');
+    times = loadtimes(T1:T2,:);
 end
 
 % Select and load desired times
-times = mtime(:,T1:T2);
 varargout{5} = times;
 
 %% Load sensor locations
@@ -61,20 +67,25 @@ dataloc = tempdataloc.';
 varargout{3} = dataloc;
 
 %% Load Data
-paramindex = find(strcmp(datadict(1,:),parameter)==1);
-if paramindex == 0
-     error('provide correct parameter (e.g. ''Ne'')')
-else
-    tempData = hdf5read(filename,char(datadict(2,paramindex)));
+% paramindex = find(strcmp(datadict(1,:),parameter)==1);
+data = struct();
+for k = 1:length(parameter)
+    paramindex = find(strcmp(datadict(1,:),parameter{k}));
+    
+    if paramindex == 0
+         error('provide correct parameter (e.g. ''Ne'')')
+    else
+        tempData = hdf5read(filename,char(datadict(2,paramindex)));
+    end
+    
+    if (paramindex == 3 || paramindex == 4) %For Vi or dVi
+        tempData = squeeze(tempData(4,1,:,:,:));
+    elseif (paramindex == 5 || paramindex == 6) %For Ti or dTi
+        tempData = squeeze(tempData(2,1,:,:,:));
+    elseif (paramindex == 7 || paramindex == 8) %For Te or dTe
+        tempData = squeeze(tempData(2,end,:,:,:));
+    end
+    tempData = tempData(:,:,T1:T2);
+    data.(parameter{k}) = reshape(permute(tempData,[2 1 3]),[size(dataloc,1),size(times,1)]);
 end
-
-if (paramindex == 3 || paramindex == 4) %For Vi or dVi
-    tempData = tempData(4,1,:,:,:);
-elseif (paramindex == 5 || paramindex == 6) %For Ti or dTi
-    tempData = tempData(2,1,:,:,:);
-elseif (paramindex == 7 || paramindex == 8) %For Te or dTe
-    tempData = tempData(2,end,:,:,:);
-end
-
-data = reshape(permute(tempData,[2 1 3]),length(varargout{3}),length(tempData(1,1,:)));
 varargout{1} = data;

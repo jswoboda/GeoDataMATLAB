@@ -1,10 +1,22 @@
 function [varargout] = readomti(filelist,latfile,lonfile,height,omtishape)
 % readomti.m
 % By John Swoboda
-
-varnames = {'data','coordnames','dataloc','sensorloc','times'};
-ntimes = length(filelist);
+% This function will read a list of OMTI files into the GeoData format.
+% Inputs
+% filelist - A cell array of strings that hold the names of the omti files.
+% latfile - A string of the file name that holds the latitude for each pixel
+% in the omti images.
+% lonfile - A string of the file name that holds the longitude for each pixel
+% in the omti images.
+% height - The height that the omti image is being intpolated to.
+% omtishape - The size of the images for the omti data.
+% Output
+% Varargout - A cell array with the GeoData values. See GeoData
+% Documentation for details.
+% {'data','coordnames','dataloc','sensorloc','times'};
 %% Determine the times
+ntimes = length(filelist);
+
 times = zeros(1,length(filelist));
 
 for iomti = 1:length(filelist)
