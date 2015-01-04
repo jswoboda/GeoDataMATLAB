@@ -29,8 +29,12 @@ function ECEF_COORDS = wgs2ecef(WGS_COORDS)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Check input
 [n,m] = size(WGS_COORDS);
+data_trans = false;
+
 if n~=3&&m==3
     WGS_COORDS = WGS_COORDS.';
+    data_trans = true;
+
 elseif n==3&&m==3
     warning('Both dimensions have 3 elements, assuming lat, long and height are along rows');
 elseif n~=3 &&m~=3
@@ -55,3 +59,6 @@ y_ecef = (n + h).*cosd(phi).*sind(lambda);
 z_ecef = (n.*(1-e^2)+h).*sind(phi);
 
 ECEF_COORDS = [x_ecef;y_ecef;z_ecef];
+if data_trans
+    ECEF_COORDS = ECEF_COORDS';
+end

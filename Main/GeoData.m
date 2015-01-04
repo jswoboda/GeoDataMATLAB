@@ -1,4 +1,4 @@
-classdef GeoData
+classdef GeoData <handle
     %GeoData 
     % This is a class to hold geophysical data from different types of 
     % sensors to study near earth space physics.
@@ -56,13 +56,13 @@ classdef GeoData
             
             if nargin <4
                 method = 'linear';
-                fill_value = nan;
+                extrapmethod = nan;
             elseif nargin <5
                 method = varargin{1};
-                fill_value = nan;
+                extrapmethod = nan;
             else
                 method = varargin{1};
-                fill_value = varargin{2};
+                extrapmethod = varargin{2};
             end
             
             curavalmethods = {'linear', 'nearest', 'cubic','natural'};
@@ -78,35 +78,38 @@ classdef GeoData
             % Loop through parameters and create temp variable
             paramnames = fieldnames(self.data);
             for iparam =1:length(paramnames)
-                
+                fprintf('Interpolating parameter %s, %d of %d\n',paramnames{iparam},iparam,length(paramnames));
                 iparamn = paramnames{iparam};
                 New_param = zeros(NNlocs,Nt);
                 for itime = 1:Nt
-
-                    curparam =self.data.(iparam)(:,itime);
+                    fprintf('\tInterpolating time %d of %d\n',itime,Nt);
+                    curparam =self.data.(iparamn)(:,itime);
                     if any(strcmp(method,interpmethods))
-                        F = scatteredInterpolant(curcoords(1,:), curcoords(2,:), curcoords(3,:)...
-                            ,curparam,method,fill_value);
-                        intparam = F(curcoords(1,:),curcoords(2,:),curcoords(3,:));
+                        F = scatteredInterpolant(curcoords(:,1), curcoords(:,2),curcoords(:,3),curparam,method,extrapmethod);
+                        intparam = F(new_coords(:,1),new_coords(:,2),new_coords(:,3));
                         New_param(:,itime)= intparam;
                     end
                 end
-                self.data{iparamn} = New_param;
+                self.data.(iparamn) = New_param;
                 
             end
-            self.dataloc = new_coords;
             self.coordnames=newcoordname;
-       
+            self.dataloc = new_coords;       
         end
         %% Coordinate change
         function oc = changecoords(self,newcoordname)
             cc = self.dataloc;
-            if strcmpi(self.coordnames,'spherical')||strcmpi(newcoordname,'cartisian')
+            if strcmpi(self.coordnames,'spherical')&&strcmpi(newcoordname,'ENU')
                 [x,y,z] = sphere2cart(cc(:,1),cc(:,2),cc(:,3));
                 oc = [x,y,z];
-            elseif strcmpi(self.coordnames,'cartisian')||strcmpi(newcoordname,'spherical')
+            elseif strcmpi(self.coordnames,'ENU')&&strcmpi(newcoordname,'spherical')
                 [r,az,el] = cart2sphere(cc(:,1),cc(:,2),cc(:,3));
                 oc = [r,az,el];
+            elseif strcmpi(self.coordnames,'wgs84')&&strcmpi(newcoordname,'ENU')
+                ECEF_COORDS = wgs2ecef(self.dataloc.');
+                locmat = repmat(self.sensorloc',[1,size(ECEF_COORDS,2)]);
+                oc = ecef2enul(ECEF_COORDS,locmat);
+                oc = oc.';
             else strcmpi(self.coordnames,newcoordname)
                 oc = cc;
             end

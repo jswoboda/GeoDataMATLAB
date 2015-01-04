@@ -1,4 +1,4 @@
-function [varargout] = readomti(filelist,latfile,lonfile,height,omtishape)
+function [varargout] = readomti(filelist,latfile,lonfile,height,omtishape,varargin)
 % readomti.m
 % By John Swoboda
 % This function will read a list of OMTI files into the GeoData format.
@@ -15,14 +15,29 @@ function [varargout] = readomti(filelist,latfile,lonfile,height,omtishape)
 % Documentation for details.
 % {'data','coordnames','dataloc','sensorloc','times'};
 %% Determine the times
-ntimes = length(filelist);
+nfiles= length(filelist);
 
-times = zeros(1,length(filelist));
+times = zeros(length(filelist),1);
 
 for iomti = 1:length(filelist)
     times(iomti) = datenum(filelist{iomti}(end-20:end-9),'yymmddHHMMSS');
 end
 times = (times-datenum('jan-01-1970'))*3600*24;
+times = [times,times+30];
+if nargin >5
+    timebound = varargin{1};
+    if isa(timebound,'cell')
+       timebound = datestr2unix(timebound);
+    end
+    T1 = find(times(:,1) >= timebound(1), 1, 'first');
+    T2 = find(times(:,2) >= timebound(2), 1, 'first');
+    times = times(T1:T2,:);
+else
+    T1 = 1;
+    T2 = nfiles;
+end
+ntimes = T2-T1+1;
+
 %% Sensor Location
 % RISR position
 lon0=-94.90576;
@@ -46,7 +61,7 @@ lon(nanpoint) = NaN;
 lon = lon-360;
 hmat = height*ones(size(lon));
 hmat(nanpoint) = NaN;
-ECEF = wgs2ecef([lat(:),lon(:),hmat(:)]);
+ECEF = wgs2ecef([lat(:)';lon(:)';hmat(:)']);
 latlongheightmat = repmat(sensorloc,size(ECEF,2),1)';
 ENU = ecef2enul(ECEF,latlongheightmat);
 % enu is in meters
@@ -75,7 +90,7 @@ F = (cos(theta) + 0.15 .* (93.885-theta.*180/pi).^(-1.253)).^(-1);
 
 factor = 10.^(-0.4*0.4.*F);
 nonanind2=~isnan(factor);
-dataloc = [lat(nonanind2),lon(nonanind2),hmat(nonanind2)];
+dataloc = [lat(nonanind2),lon(nonanind2),hmat(nonanind2)*1e3];%put height into meters
 nlocs = size(dataloc,1);
 
 data = struct('optical',zeros(nlocs,ntimes));
@@ -83,7 +98,8 @@ coordnames = 'wgs84';
 
 
 %% Read in image data
-for k_file = 1:length(filelist)
+for k_file = T1:T2
+    itime = k_file-T1+1;
     filename = filelist{k_file};
     % This function will read the .abs data
     fid=fopen(filename, 'rb');
@@ -101,7 +117,7 @@ for k_file = 1:length(filelist)
     image=im;
     image(nonanind1) = im(nonanind1)./V(nonanind1);
     image(nonanind2) = image(nonanind2)./factor(nonanind2);
-    data.optical(:,k_file) = image(nonanind2);
+    data.optical(:,itime) = image(nonanind2);
 end
 
 %% Output 
