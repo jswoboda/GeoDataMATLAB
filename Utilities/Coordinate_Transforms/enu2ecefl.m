@@ -1,4 +1,4 @@
-function ECEF = enu2ecef(ENU,LatLongHeight)
+function ECEF = enu2ecefl(ENU,LatLongHeight)
 % enu2ecef.m
 % ENU = ecef2enu(ECEF,LatLongHeight)
 % by John Swoboda 1/8/2013
