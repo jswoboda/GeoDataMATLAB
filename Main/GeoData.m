@@ -56,10 +56,10 @@ classdef GeoData <handle
             
             if nargin <4
                 method = 'linear';
-                extrapmethod = nan;
+                extrapmethod = 'none';
             elseif nargin <5
                 method = varargin{1};
-                extrapmethod = nan;
+                extrapmethod = 'none';
             else
                 method = varargin{1};
                 extrapmethod = varargin{2};
@@ -70,7 +70,7 @@ classdef GeoData <handle
             if ~any(strcmp(curavalmethods,method))
                 error(['Must be one of the following methods: ', strjoin(curavalmethods,', ')]);
             end
-            Nt = size(self.times,1);
+            Nt = length(self.times);
             NNlocs = size(new_coords,1);
 
 
@@ -100,6 +100,9 @@ classdef GeoData <handle
         function oc = changecoords(self,newcoordname)
             cc = self.dataloc;
             if strcmpi(self.coordnames,'spherical')&&strcmpi(newcoordname,'ENU')
+                [x,y,z] = sphere2cart(cc(:,1),cc(:,2),cc(:,3));
+                oc = [x,y,z];
+            elseif strcmpi(self.coordnames,'spherical')&&strcmpi(newcoordname,'cartisian')
                 [x,y,z] = sphere2cart(cc(:,1),cc(:,2),cc(:,3));
                 oc = [x,y,z];
             elseif strcmpi(self.coordnames,'ENU')&&strcmpi(newcoordname,'spherical')
