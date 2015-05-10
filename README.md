@@ -1,4 +1,7 @@
-This is the GeoData class for MATLAB.
+## GeoDataMATLAB
+
+#Overview
+This is the repository for the MATLAB version of GeoData to plot and analyze data from geophysics sources such as radar and optical systems.
 
 Installation:
 The software package can be installed in MATLAB by running setup.m, which will add the tools to the MATLAB path. The user can specify they’re developing the toolbox further by adding the string “develop” as the second argument. This will create a directory Test that will be added within the main GeoData directory. This folder will not be added to the path. 

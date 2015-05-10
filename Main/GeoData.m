@@ -40,15 +40,51 @@ classdef GeoData <handle
             out=true;
         end
         
-        function out=ne(GD,GD2)
+        function out=ne(self,GD2)
             % This is the ~= operorator for the GeoData class 
-            out = ~(GD==GD2);
+            out = ~(self==GD2);
         end
         %% datanames
-        function dnames = datanames(GD)
+        function dnames = datanames(self)
             % This will output a cell array of strings which hold the data
             % names.
-            dnames = fieldnames(GD.data);
+            dnames = fieldnames(self.data);
+        end
+        %% Change Data
+        function changedata(self,dataname,newname,func,varargin)
+            % changedata(dataname,newname,func)
+            % changedata(dataname,newname,func,params)
+            % changedata(dataname,newname,func,params,rm_old)
+            %
+            % This function will take one of the elements in the data
+            % matrix and apply the transform in function handle given. It
+            % will then assign a new name in the struct.
+            % Inputs
+            % dataname: a string, the name of the field you want to operate
+            % on.
+            % newname: a string that will be name of the resultant field.
+            % func: a function handle that will augment the data. The
+            % first argument must be the data from the instance of the
+            % class.
+            % params: (default ={}) A list of parameters for the function.
+            % rm_old: (default= true) a bool to determine if you should
+            % remove the old field.
+            if nargin==4
+                params={};
+                rm_old=true;
+            elseif nargin==5
+                params=varargin{1};
+                rm_old=true;
+            elseif nargin==6
+                params=varargin{1};
+                rm_old=varargin{2}; 
+            end
+            
+            self.data.(newname)= func(self.data.(dataname),params{:});
+            if rm_old
+                self.data=rmfield(self.data,dataname);
+            end
+            
         end
         %% Interpolate
         function interpolate(self,new_coords,newcoordname,varargin)
@@ -84,10 +120,17 @@ classdef GeoData <handle
                 for itime = 1:Nt
                     fprintf('\tInterpolating time %d of %d\n',itime,Nt);
                     curparam =self.data.(iparamn)(:,itime);
+                    paramnum = ~isnan(curparam);
+                    curparam = curparam(paramnum);
+                    curcoordstemp = curcoords(paramnum,:);
                     if any(strcmp(method,interpmethods))
-                        F = scatteredInterpolant(curcoords(:,1), curcoords(:,2),curcoords(:,3),curparam,method,extrapmethod);
+                        F = scatteredInterpolant(curcoordstemp(:,1), curcoordstemp(:,2),curcoordstemp(:,3),curparam,method,extrapmethod);
                         intparam = F(new_coords(:,1),new_coords(:,2),new_coords(:,3));
-                        New_param(:,itime)= intparam;
+                        if isempty(intparam)
+                            New_param = nan(NNlocs,1);
+                        else
+                            New_param(:,itime)= intparam;
+                        end
                     end
                 end
                 self.data.(iparamn) = New_param;
@@ -98,12 +141,13 @@ classdef GeoData <handle
         end
         %% Coordinate change
         function oc = changecoords(self,newcoordname)
+            d2r = pi/180;
             cc = self.dataloc;
             if strcmpi(self.coordnames,'spherical')&&strcmpi(newcoordname,'ENU')
                 [x,y,z] = sphere2cart(cc(:,1),cc(:,2),cc(:,3));
                 oc = [x,y,z];
             elseif strcmpi(self.coordnames,'spherical')&&strcmpi(newcoordname,'cartisian')
-                [x,y,z] = sphere2cart(cc(:,1),cc(:,2),cc(:,3));
+                [x,y,z] = sphere2cart(cc(:,1),d2r*cc(:,2),d2r*cc(:,3));
                 oc = [x,y,z];
             elseif strcmpi(self.coordnames,'ENU')&&strcmpi(newcoordname,'spherical')
                 [r,az,el] = cart2sphere(cc(:,1),cc(:,2),cc(:,3));
