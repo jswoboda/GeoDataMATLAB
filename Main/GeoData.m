@@ -1,4 +1,4 @@
-classdef GeoData <handle
+classdef GeoData <matlab.mixin.Copyable%handle
     %GeoData 
     % This is a class to hold geophysical data from different types of 
     % sensors to study near earth space physics.
@@ -86,6 +86,33 @@ classdef GeoData <handle
             end
             
         end
+        %% Reduce time
+        function  timereduce(self,timelist,varargin)
+            
+            if nargin==2
+                type = 1;
+            elseif nargin==3
+                type=varargin{1};
+            end
+            
+            if type ==1
+                listkeep = timelist;
+            elseif type==2
+                [~,~,listkeep] = intersect(self.times,timelist);
+            end
+            if ndims(self.times)==1
+                self.times=self.times(listkeep);
+            elseif ismatrix(self.times)
+                self.times=self.times(listkeep,:);
+            end
+            
+            datafields = self.datanames();
+            
+            for ifield = 1:length(datafields)
+                self.data.(datafields{ifield})= self.data.(datafields{ifield})(:,listkeep);
+            end
+            
+        end
         %% Interpolate
         function interpolate(self,new_coords,newcoordname,varargin)
             % This will interpolate the data
@@ -93,12 +120,19 @@ classdef GeoData <handle
             if nargin <4
                 method = 'linear';
                 extrapmethod = 'none';
+                twodinterp = false;
             elseif nargin <5
                 method = varargin{1};
                 extrapmethod = 'none';
+                twodinterp = false;
+            elseif nargin <6
+                method = varargin{1};
+                extrapmethod = varargin{2};
+                twodinterp = false;
             else
                 method = varargin{1};
                 extrapmethod = varargin{2};
+                twodinterp = varargin{3};
             end
             
             curavalmethods = {'linear', 'nearest', 'cubic','natural'};
@@ -107,10 +141,26 @@ classdef GeoData <handle
                 error(['Must be one of the following methods: ', strjoin(curavalmethods,', ')]);
             end
             Nt = length(self.times);
+            ONlocs = size(self.dataloc,1);
             NNlocs = size(new_coords,1);
-
-
             curcoords = self.changecoords(newcoordname);
+            
+            origloc = self.dataloc(1,:);
+            loclog = origloc(ones(ONlocs,1),:)==self.dataloc;
+            dimrm = all(loclog,1);
+            
+            origloc2 = new_coords(1,:);
+            loclog2 = origloc2(ones(NNlocs,1),:)==new_coords;
+            dimrm2 = all(loclog2,1);
+            
+            dimrm = dimrm|dimrm2;
+            newcoordshold = new_coords;
+            if twodinterp
+                new_coords = new_coords(:,~dimrm);
+                curcoords = curcoords(:,~dimrm);
+            end
+            
+            
             % Loop through parameters and create temp variable
             paramnames = fieldnames(self.data);
             for iparam =1:length(paramnames)
@@ -124,8 +174,8 @@ classdef GeoData <handle
                     curparam = curparam(paramnum);
                     curcoordstemp = curcoords(paramnum,:);
                     if any(strcmp(method,interpmethods))
-                        F = scatteredInterpolant(curcoordstemp(:,1), curcoordstemp(:,2),curcoordstemp(:,3),curparam,method,extrapmethod);
-                        intparam = F(new_coords(:,1),new_coords(:,2),new_coords(:,3));
+                        F = scatteredInterpolant(curcoordstemp,curparam,method,extrapmethod);
+                        intparam = F(new_coords);
                         if isempty(intparam)
                             New_param = nan(NNlocs,1);
                         else
@@ -137,27 +187,61 @@ classdef GeoData <handle
                 
             end
             self.coordnames=newcoordname;
-            self.dataloc = new_coords;       
+            self.dataloc = newcoordshold;       
+        end
+        %% Time registration
+        function outcell = timeregister(self,self2)
+            
+            times1 = self.times;
+            times2 = self2.times;
+            
+            if ndims(times1)==1
+                timeahead = times1(2:end);
+                timeahead = timeahead(:);
+                avediff = mean(diff(timeahead));
+                timesahead = [timeasahead;timeahead(end)+avediff];
+                times1 = [times1(:),timesahead];
+            end
+            
+            if ndims(times2)==1
+                timeahead = times2(2:end);
+                timeahead = timeahead(:);
+                avediff = mean(diff(timeahead));
+                timesahead = [timeasahead;timeahead(end)+avediff];
+                times2 = [times2(:),timesahead];
+            end
+            outcell = cell(1, size(times1,1));
+            for k =  1:size(times1,1)
+                l = times1(k,:);
+                
+                ind1 = find(l(1)>times2(:,1),1,'last');
+                ind2 = find(l(2)<times2(:,2),1,'first');
+                outcell{k}=ind1:ind2;
+            end
         end
         %% Coordinate change
         function oc = changecoords(self,newcoordname)
             d2r = pi/180;
             cc = self.dataloc;
-            if strcmpi(self.coordnames,'spherical')&&strcmpi(newcoordname,'ENU')
+            if strcmpi(self.coordnames,'spherical')&&strcmpi(newcoordname,'enu')
                 [x,y,z] = sphere2cart(cc(:,1),cc(:,2),cc(:,3));
                 oc = [x,y,z];
             elseif strcmpi(self.coordnames,'spherical')&&strcmpi(newcoordname,'cartisian')
                 [x,y,z] = sphere2cart(cc(:,1),d2r*cc(:,2),d2r*cc(:,3));
                 oc = [x,y,z];
-            elseif strcmpi(self.coordnames,'ENU')&&strcmpi(newcoordname,'spherical')
+            elseif strcmpi(self.coordnames,'enu')&&strcmpi(newcoordname,'spherical')
                 [r,az,el] = cart2sphere(cc(:,1),cc(:,2),cc(:,3));
                 oc = [r,az,el];
-            elseif strcmpi(self.coordnames,'wgs84')&&strcmpi(newcoordname,'ENU')
+            elseif strcmpi(self.coordnames,'wgs84')&&strcmpi(newcoordname,'enu')
                 ECEF_COORDS = wgs2ecef(self.dataloc.');
                 locmat = repmat(self.sensorloc',[1,size(ECEF_COORDS,2)]);
                 oc = ecef2enul(ECEF_COORDS,locmat);
                 oc = oc.';
-            else strcmpi(self.coordnames,newcoordname)
+            elseif strcmpi(self.coordnames,'enu')&&strcmpi(newcoordname,'cartisian')
+                oc = cc*1e-3;
+            elseif strcmpi(self.coordnames,'cartisian')&&strcmpi(newcoordname,'enu')
+                oc = cc*1e3;
+            elseif strcmpi(self.coordnames,newcoordname)
                 oc = cc;
             end
         end

@@ -18,3 +18,11 @@ Code to impact the class will be placed in the class def file. For example if it
 The properties names will be all lower case. While all function names will be lower case with _ to separate words. The classes will be have capitalized words with no spaces. Directories will be capitalized with _ to separate words.
 
 If the user would like to create test code please do this in the Test folder. Also this code is not be uploaded to the main code base on GitHub. 
+
+#Installation
+
+To install first clone repository:
+
+	$ git clone https://github.com/jswoboda/GeoDataMATLAB.git
+	
+The user should then start MATLAB	 and go to the folder containing the code. 
