@@ -1,29 +1,26 @@
 function plotbeamposGD(GD,varargin)
-% amisr_beams.m
-% amisr_beams(filename))
-% amisr_beams(az,el)
-% Function that plots the beam grid in polar coordinates.
+% plotbeamposGD.m
+% by John Swoboda
+% This function will plot the beam grid in a polar grid with the az angle
+% as the azimithal commponent of the grid and the el angle as the range in
+% decending order.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Inputs
-% filename - A string that holds the h5 filename.
-% az - The azimuthal coordinates of the beams in degrees.
-% el - The elevation of the beams in degrees
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Outputs
-% A plot of the beam positions.  The handle will not be returned as an
-% output.  Do a gcf after the function is run if you want the handle.
+% GD - An instance of the geodata class in Spherical coordinates.
+%
+% Properties - These are Name Value pairs that are optional inputs like in 
+% MATLAB's plotting function. The name will be listed first and the
+% internal variable name will be stated in the description.
+% 
+% Fig- The value will be a MATLAB figure handle. The internal variable name
+% is figname. The default value is nan
+% axh- The value will be a MATLAB axis handle. The internal variable name
+% is axh. The default value is nan
+% title- The value will be a MATLAB string for the plot title. The internal
+% variable name is titlestr. The default value is an empty string.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Input
-
-
-
-angles = GD.dataloc(:,2:end);
-uang = unique(angles,'rows');
-
-az = uang(:,1);
-el = uang(:,2);
-az = az*pi/180;
-
+% Determine the properties
 paramstr = varargin(1:2:end);
 paramvals = varargin(2:2:end);
 poss_labels={'Fig','axh','title'};
@@ -41,6 +38,18 @@ end
 if isnumeric(axh);
     axh=gca;
 end
+
+%% Determine angles
+
+assert(strcmpi(GD.coordnames,'spherical'),'The GeoData instance must be in spherical coordinates');
+angles = GD.dataloc(:,2:end);
+uang = unique(angles,'rows');
+
+az = uang(:,1);
+el = uang(:,2);
+az = az*pi/180;
+
+
 %% Plotting
 
 theta = linspace(0,2*pi,100);
@@ -92,7 +101,7 @@ for i=1:length(elev)
     plot(x,y,':k')
     text(elev(i)*sind(22.5),-elev(i)*cosd(22.5)-2,sprintf('%d',90-elev(i)))
 end
-title(titlestr);
+title({titlestr;''},'FontSize',16);
 axis off
 % 
 % for i=1:1:length(xx)

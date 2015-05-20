@@ -1,5 +1,5 @@
 classdef GeoData <matlab.mixin.Copyable%handle
-    %GeoData 
+    % Class that holds data for different sensors.
     % This is a class to hold geophysical data from different types of 
     % sensors to study near earth space physics.
     properties
@@ -22,11 +22,13 @@ classdef GeoData <matlab.mixin.Copyable%handle
         %% == ~=
         function out = eq(self,GD2)
             % This is the == operorator for the GeoData class 
+            % Checks to see if all of the locations, times, parameters
+            % and data sets are the same.
             proplist = properties(self);
             proplist2 = properties(GD2);
             
             if ~isequal(proplist,proplist2)
-                error('GD or GD is not a GeoData object');
+                error('GD and/or GD2 is not a GeoData object');
             end
             
             for k = 1:length(proplist)
@@ -41,7 +43,9 @@ classdef GeoData <matlab.mixin.Copyable%handle
         end
         
         function out=ne(self,GD2)
-            % This is the ~= operorator for the GeoData class 
+            % This is the ~= operorator for the GeoData class
+            % Checks to see if all of the locations, times, parameters
+            % and data sets are not the same.
             out = ~(self==GD2);
         end
         %% datanames
@@ -52,6 +56,7 @@ classdef GeoData <matlab.mixin.Copyable%handle
         end
         %% Change Data
         function changedata(self,dataname,newname,func,varargin)
+            % This will change the data points based on a given function.
             % changedata(dataname,newname,func)
             % changedata(dataname,newname,func,params)
             % changedata(dataname,newname,func,params,rm_old)
@@ -88,12 +93,19 @@ classdef GeoData <matlab.mixin.Copyable%handle
         end
         %% Reduce time
         function  timereduce(self,timelist,varargin)
-            
+            % This pull out time instances.
+            % Give a list of time instances that the user wants to keep and
+            % discard the rest.
+            % Inputs
+            % timelist - A vector of desired times
+            % type - Either 1 or 2, if 1 then just give the list of indices
+            % for the times. If 2 then give the actual time values.
             if nargin==2
                 type = 1;
             elseif nargin==3
                 type=varargin{1};
             end
+            assert(any(type==[1,2]),'Type must be 1 or 2');
             
             if type ==1
                 listkeep = timelist;
@@ -115,7 +127,7 @@ classdef GeoData <matlab.mixin.Copyable%handle
         end
         %% Interpolate
         function interpolate(self,new_coords,newcoordname,varargin)
-            % This will interpolate the data
+            % This will interpolate the data in a GeoData object.
             
             if nargin <4
                 method = 'linear';
@@ -137,9 +149,9 @@ classdef GeoData <matlab.mixin.Copyable%handle
             
             curavalmethods = {'linear', 'nearest', 'cubic','natural'};
             interpmethods = {'linear', 'nearest', 'cubic','natural'};
-            if ~any(strcmp(curavalmethods,method))
-                error(['Must be one of the following methods: ', strjoin(curavalmethods,', ')]);
-            end
+            assert(any(strcmp(curavalmethods,method)),...
+                ['Must be one of the following methods: ', strjoin(curavalmethods,', ')]);
+            
             Nt = length(self.times);
             ONlocs = size(self.dataloc,1);
             NNlocs = size(new_coords,1);
@@ -188,6 +200,59 @@ classdef GeoData <matlab.mixin.Copyable%handle
             end
             self.coordnames=newcoordname;
             self.dataloc = newcoordshold;       
+        end
+        
+        function interpolate_customcoords(self,new_coords,newcoordname,curcoords,varargin)
+            % This will interpolate the data in a GeoData object given a
+            % custom set of coordinates of the original data.
+            % Inputs
+            % new_coords - A Nx3 array of coordinates to interpolate the
+            % data to.
+            % newcoordname - A 
+            if nargin <5
+                method = 'linear';
+                extrapmethod = 'none';
+            elseif nargin <6
+                method = varargin{1};
+                extrapmethod = 'none';
+            else
+                method = varargin{1};
+                extrapmethod = varargin{2};
+            end
+            
+            curavalmethods = {'linear', 'nearest', 'cubic','natural'};
+            interpmethods = {'linear', 'nearest', 'cubic','natural'};
+            assert(any(strcmp(curavalmethods,method)),...
+                ['Must be one of the following methods: ', strjoin(curavalmethods,', ')]);
+            
+            % Loop through parameters and create temp variable
+            paramnames = fieldnames(self.data);
+            for iparam =1:length(paramnames)
+                fprintf('Interpolating parameter %s, %d of %d\n',paramnames{iparam},iparam,length(paramnames));
+                iparamn = paramnames{iparam};
+                New_param = zeros(NNlocs,Nt);
+                for itime = 1:Nt
+                    fprintf('\tInterpolating time %d of %d\n',itime,Nt);
+                    curparam =self.data.(iparamn)(:,itime);
+                    paramnum = ~isnan(curparam);
+                    curparam = curparam(paramnum);
+                    curcoordstemp = curcoords(paramnum,:);
+                    if any(strcmp(method,interpmethods))
+                        F = scatteredInterpolant(curcoordstemp,curparam,method,extrapmethod);
+                        intparam = F(new_coords);
+                        if isempty(intparam)
+                            New_param = nan(NNlocs,1);
+                        else
+                            New_param(:,itime)= intparam;
+                        end
+                    end
+                end
+                self.data.(iparamn) = New_param;
+                
+            end
+            self.coordnames=newcoordname;
+            self.dataloc = newcoordshold;
+            
         end
         %% Time registration
         function outcell = timeregister(self,self2)
