@@ -128,7 +128,19 @@ classdef GeoData <matlab.mixin.Copyable%handle
         %% Interpolate
         function interpolate(self,new_coords,newcoordname,varargin)
             % This will interpolate the data in a GeoData object.
+            % Uses standard coordinate change routines avalible in the tool
+            % box for GeoData.
+            % Inputs
+            % new_coords - A Nx3 array of coordinates to interpolate the
+            % data to.
+            % newcoordname - A string for the new type of coordinates to
+            % interpolate to.
             
+            % method - A string of 'linear', 'nearest', 'cubic','natural'
+            % to determine how to interpolate the data. The default is
+            % 'natural'.
+            % extrapmethod - A string that determines the extrapolation 
+            % method. Default is none, which fills extrapolated values with nans. 
             if nargin <4
                 method = 'linear';
                 extrapmethod = 'none';
@@ -208,7 +220,15 @@ classdef GeoData <matlab.mixin.Copyable%handle
             % Inputs
             % new_coords - A Nx3 array of coordinates to interpolate the
             % data to.
-            % newcoordname - A 
+            % newcoordname - A string for the new type of coordinates to
+            % interpolate to.
+            % curcoords - An alternative set of coordinates to for the 
+            % original data to be used instead of its current coordinates.
+            % method - A string of 'linear', 'nearest', 'cubic','natural'
+            % to determine how to interpolate the data. The default is
+            % 'natural'.
+            % extrapmethod - A string that determines the extrapolation 
+            % method. Default is none, which fills extrapolated values with nans. 
             if nargin <5
                 method = 'linear';
                 extrapmethod = 'none';
@@ -256,7 +276,15 @@ classdef GeoData <matlab.mixin.Copyable%handle
         end
         %% Time registration
         function outcell = timeregister(self,self2)
-            
+            % Create a cell array which shows the overlap between two
+            % instances of GeoData.
+            % Inputs
+            % self2 - A GeoData object.
+            % Outputs
+            % outcell - A cellarray of vectors the same length as the time
+            % vector in self. Each vector will have the time indecies from 
+            % the second GeoData object which overlap with the time indicie 
+            % of the first object.
             times1 = self.times;
             times2 = self2.times;
             
@@ -286,6 +314,7 @@ classdef GeoData <matlab.mixin.Copyable%handle
         end
         %% Coordinate change
         function oc = changecoords(self,newcoordname)
+            % Changes the coordinates
             d2r = pi/180;
             cc = self.dataloc;
             if strcmpi(self.coordnames,'spherical')&&strcmpi(newcoordname,'enu')
@@ -313,6 +342,7 @@ classdef GeoData <matlab.mixin.Copyable%handle
         %% Write out
         function write_h5(self,filename)
             % This will write out the h5 file in our defined format.
+            % Input filename must be a string.
             proplist = properties(self);
 %             file_id  = H5F.create(filename, 'H5F_ACC_TRUNC', ...
 %                              'H5P_DEFAULT', 'H5P_DEFAULT');
