@@ -94,27 +94,37 @@ v = GD.data.(key)(:,timenum);
 if all(isnan(vbound))
     vbound = [min(v),max(v)];
 end
-% reshape the data
-[X,Y,Z,V] = reshapegen(GD.dataloc,v);
 % for a twod object apply a colormap to the surface because the slice
 % function requires a volumetric object
 if twodplot
-    origloc = GD.dataloc(1,:);
-    ONlocs = size(GD.dataloc,1);
-    loclog = origloc(ones(ONlocs,1),:)==GD.dataloc;
-    %XXX Need to come up with a better way to determine if you have a two
-    %dimensional object
-    dimrm = all(loclog,1);
-    if dimrm(1)&&~emptyarr(1)
-        X=ones(size(Y))*sx;
-    elseif dimrm(2)&&~emptyarr(2)
-        Y=ones(size(Z))*sy;
-    elseif dimrm(3)&&~emptyarr(3)
-        Z=ones(size(X))*sz;
+    if surftype==2
+        % reshape the data
+        [X,Y,Z,V] = reshapegen(GD.dataloc,v);
+        origloc = GD.dataloc(1,:);
+        ONlocs = size(GD.dataloc,1);
+        loclog = origloc(ones(ONlocs,1),:)==GD.dataloc;
+        %XXX Need to come up with a better way to determine if you have a two
+        %dimensional object
+        dimrm = all(loclog,1);
+        if dimrm(1)&&~emptyarr(1)
+            X=ones(size(Y))*sx;
+        elseif dimrm(2)&&~emptyarr(2)
+            Y=ones(size(Z))*sy;
+        elseif dimrm(3)&&~emptyarr(3)
+            Z=ones(size(X))*sz;
+        end
+        curcdata = makecdata(V,cmap,vbound);
+        hslice=surf(axh,X,Y,Z,'Cdata',curcdata,'EdgeColor','none');
+    elseif surftype==1
+        % TODO: Make it so reshape is more generalized.
+        % Making assumption that data is already in basically a flattened
+        % version of the the shape of the object you want plotted.
+        curcdata = makecdata(reshape(v,size(Xi)),cmap,vbound);
+        hslice=surf(axh,Xi,Yi,ZI,'Cdata',curcdata,'EdgeColor','none');
     end
-    curcdata = makecdata(V,cmap,vbound);
-    hslice=surf(axh,X,Y,Z,'Cdata',curcdata,'EdgeColor','none');
 else
+    % reshape the data
+    [X,Y,Z,V] = reshapegen(GD.dataloc,v);
     if surftype==1
         hslice=slice(axh,X,Y,Z,V,Xi,Yi,Zi);
     elseif surftype==2
