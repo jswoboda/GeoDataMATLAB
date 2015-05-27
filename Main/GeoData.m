@@ -245,6 +245,9 @@ classdef GeoData <matlab.mixin.Copyable%handle
             assert(any(strcmp(curavalmethods,method)),...
                 ['Must be one of the following methods: ', strjoin(curavalmethods,', ')]);
             
+            Nt = length(self.times);
+            ONlocs = size(self.dataloc,1);
+            NNlocs = size(new_coords,1);
             % Loop through parameters and create temp variable
             paramnames = fieldnames(self.data);
             for iparam =1:length(paramnames)
@@ -271,7 +274,7 @@ classdef GeoData <matlab.mixin.Copyable%handle
                 
             end
             self.coordnames=newcoordname;
-            self.dataloc = newcoordshold;
+            self.dataloc = new_coords;
             
         end
         %% Time registration

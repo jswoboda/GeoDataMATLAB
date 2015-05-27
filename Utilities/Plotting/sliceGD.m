@@ -77,7 +77,7 @@ if isnumeric(key)
 end
 
 if isnumeric(figname)
-    figure();
+    figname = figure();
     axh = newplot(figname);
 else
     figure(figname);
@@ -113,14 +113,16 @@ if twodplot
         elseif dimrm(3)&&~emptyarr(3)
             Z=ones(size(X))*sz;
         end
-        curcdata = makecdata(V,cmap,vbound);
-        hslice=surf(axh,X,Y,Z,'Cdata',curcdata,'EdgeColor','none');
+        [curcdata,alpha] = makecdata(V,cmap,vbound);
+        hslice=surf(axh,X,Y,Z,'Cdata',curcdata,'EdgeColor','none',...
+            'FaceAlpha','flat','AlphaDataMapping','scaled','AlphaData',alpha);
     elseif surftype==1
         % TODO: Make it so reshape is more generalized.
         % Making assumption that data is already in basically a flattened
         % version of the the shape of the object you want plotted.
-        curcdata = makecdata(reshape(v,size(Xi)),cmap,vbound);
-        hslice=surf(axh,Xi,Yi,ZI,'Cdata',curcdata,'EdgeColor','none');
+        [curcdata,alpha] = makecdata(reshape(v,size(Xi)),cmap,vbound);
+        hslice=surf(axh,Xi,Yi,Zi,'Cdata',curcdata,'EdgeColor','none',...
+            'FaceAlpha','flat','AlphaDataMapping','scaled','AlphaData',alpha);
     end
 else
     % reshape the data
