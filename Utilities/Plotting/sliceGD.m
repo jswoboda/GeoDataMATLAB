@@ -38,7 +38,7 @@ function hslice = sliceGD(GD,varargin)
 % hslice - The handle for the plotted object.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Inputs
-assert(strcmpi(GD.coordnames,'cartisian'),'GeoData object needs to be in cartisian coordinates.')
+assert(strcmpi(GD.coordnames,'cartesian'),'GeoData object needs to be in cartisian coordinates.')
 % Determine if given a surface or specific slice values.
 emptyarr = false(1,3);
 for k=1:3

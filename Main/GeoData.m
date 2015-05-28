@@ -18,6 +18,7 @@ classdef GeoData <matlab.mixin.Copyable%handle
             % the file handle. The outputs must follow the output structure
             % below.
             [self.data,self.coordnames,self.dataloc,self.sensorloc,self.times] = readmethod(varargin{:});
+            self.timefix()
         end
         %% == ~=
         function out = eq(self,GD2)
@@ -314,6 +315,17 @@ classdef GeoData <matlab.mixin.Copyable%handle
                 ind2 = find(l(2)<times2(:,2),1,'first');
                 outcell{k}=ind1:ind2;
             end
+        end
+        function timefix(self)
+            if size(self.times,2)==2
+                return
+            end
+            
+            time1 = self.times(:);
+            avdiff = mean(diff(time1));
+            time2 = circshift(time1,-1);
+            time2(end) = time2(end-1)+avdiff;
+            self.times = [time1,time2];
         end
         %% Coordinate change
         function oc = changecoords(self,newcoordname)
