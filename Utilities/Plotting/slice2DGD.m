@@ -38,7 +38,7 @@ function hslice = slice2DGD(GD,varargin)
 % Output
 % hslice - The handle for the plotted object.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-assert(strcmpi(GD.coordnames,'cartisian'),'GeoData object needs to be in cartisian coordinates.')
+assert(strcmpi(GD.coordnames,'cartesian'),'GeoData object needs to be in cartisian coordinates.')
 %% Main inputs
 [axstr,slicenum,numtype] = varargin{1:3};
 if ischar(axstr)

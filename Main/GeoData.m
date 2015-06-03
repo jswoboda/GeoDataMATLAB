@@ -335,7 +335,7 @@ classdef GeoData <matlab.mixin.Copyable%handle
             if strcmpi(self.coordnames,'spherical')&&strcmpi(newcoordname,'enu')
                 [x,y,z] = sphere2cart(cc(:,1),cc(:,2),cc(:,3));
                 oc = [x,y,z];
-            elseif strcmpi(self.coordnames,'spherical')&&strcmpi(newcoordname,'cartisian')
+            elseif strcmpi(self.coordnames,'spherical')&&strcmpi(newcoordname,'cartesian')
                 [x,y,z] = sphere2cart(cc(:,1),d2r*cc(:,2),d2r*cc(:,3));
                 oc = [x,y,z];
             elseif strcmpi(self.coordnames,'enu')&&strcmpi(newcoordname,'spherical')
@@ -346,9 +346,9 @@ classdef GeoData <matlab.mixin.Copyable%handle
                 locmat = repmat(self.sensorloc',[1,size(ECEF_COORDS,2)]);
                 oc = ecef2enul(ECEF_COORDS,locmat);
                 oc = oc.';
-            elseif strcmpi(self.coordnames,'enu')&&strcmpi(newcoordname,'cartisian')
+            elseif strcmpi(self.coordnames,'enu')&&strcmpi(newcoordname,'cartesian')
                 oc = cc*1e-3;
-            elseif strcmpi(self.coordnames,'cartisian')&&strcmpi(newcoordname,'enu')
+            elseif strcmpi(self.coordnames,'cartesian')&&strcmpi(newcoordname,'enu')
                 oc = cc*1e3;
             elseif strcmpi(self.coordnames,newcoordname)
                 oc = cc;
