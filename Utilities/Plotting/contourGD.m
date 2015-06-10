@@ -39,6 +39,7 @@ end
 if isnumeric(axh);
     axh=gca;
 end
+
 %% Create meshgrids
 v = GD.data.(key)(:,timenum);
 [X,Y,Z,V] = reshapegen(GD.dataloc,v);
@@ -91,6 +92,9 @@ end
 hcontour = contour(Xmat,Ymat,dataval);
 title([titlestr,' ', axstr,' = ',num2str(dimval)],'FontSize',16)
 caxis(vbound);
+contourcmap(cmap)
+freezeColors(axh)
 xlabel(['\bf ',xlab,' [km]']);
 ylabel(['\bf ',ylab,' [km]']);
+set(gca,'YDir','Reverse')
 
