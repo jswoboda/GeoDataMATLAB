@@ -97,5 +97,4 @@ contourcmap(cmap,'SourceObject',axh)
 
 xlabel(['\bf ',xlab,' [km]']);
 ylabel(['\bf ',ylab,' [km]']);
-set(gca,'YDir','Reverse')
 
