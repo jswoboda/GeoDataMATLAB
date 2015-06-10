@@ -1,4 +1,4 @@
-function hcontour = contourGD(GD,varargin)
+function [hcontour, h] = contourGD(GD,varargin)
 %SLICEANDMAP Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -89,11 +89,12 @@ elseif strcmp(axstr,'z')
 end
 %% Plotting
 [Xmat,Ymat] = meshgrid(xaxis,yaxis);
-hcontour = contour(Xmat,Ymat,dataval);
+
+[hcontour, h] = contour(Xmat,Ymat,dataval);
 title([titlestr,' ', axstr,' = ',num2str(dimval)],'FontSize',16)
 caxis(vbound);
-contourcmap(cmap)
-freezeColors(axh)
+contourcmap(cmap,'SourceObject',axh)
+
 xlabel(['\bf ',xlab,' [km]']);
 ylabel(['\bf ',ylab,' [km]']);
 set(gca,'YDir','Reverse')

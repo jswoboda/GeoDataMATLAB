@@ -14,8 +14,8 @@ The software package can be installed in MATLAB by running setup.m, which will a
 
 ~~~matlab
 cd GeoData 
-setUpPath('permanent','develop'); % perminately saves path and creates test directory.
-setUpPath('permanent','develop',' ~/Documents/MATLAB'); % perminately saves path and creates test directory.
+setup('permanent','develop'); % perminately saves path and creates test directory.
+setup('permanent','develop',' ~/Documents/MATLAB'); % perminately saves path and creates test directory.
 
 ~~~
 

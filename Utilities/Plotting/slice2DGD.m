@@ -62,8 +62,8 @@ end
 % Determine the properties
 paramstr = varargin(4:2:end);
 paramvals = varargin(5:2:end);
-poss_labels={'key','Fig','axh','title','time','bounds','colormap'}; %  ,'contour'};
-varnames = {'key','figname','axh','titlestr','timenum','vbound','cmap'}; %  ,'addcont'};
+poss_labels={'key','Fig','axh','title','time','bounds','colormap'};
+varnames = {'key','figname','axh','titlestr','timenum','vbound','cmap'};
 vals = {1,nan,nan,'Generic',1,[nan,nan],defmap};
 checkinputs(paramstr,paramvals,poss_labels,vals,varnames)
 % apply default parameters 
@@ -84,7 +84,6 @@ else
 end 
 % Augment the title string to remove the wildcard characters
 titlestr = insertinfo(titlestr,'key',key,'time',GD.times(timenum,1),'timend',GD.times(timenum,2));
-
 
 %% Create meshgrids
 v = GD.data.(key)(:,timenum);
@@ -140,14 +139,10 @@ elseif strcmp(axstr,'z')
 end
 %% Plot image
 hslice = imagesc(xaxis,yaxis,dataval);
-hold('on')
 title([titlestr,' ', axstr,' = ',num2str(dimval)],'FontSize',16)
 caxis(vbound);
-colormap(axh,cmap)
-% if addcont == 1
-%     freezeColors
-%     cbfreeze(axh,cmap)
-% end
+colormap(cmap)
+
 xlabel(['\bf ',xlab,' [km]']);
 ylabel(['\bf ',ylab,' [km]']);
 set(gca,'Ydir','normal')
