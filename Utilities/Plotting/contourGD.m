@@ -13,13 +13,10 @@ end
 
 %% extra parameters
 
-v2014dt = datetime('September 15, 2014');
-[~,d] = version();
-
-if datetime(d)>=v2014dt
-    defmap = 'parula';
-else
+if verLessThan('matlab','8.4')
     defmap = 'jet';
+else
+    defmap = 'parula';
 end
 
 paramstr = varargin(4:2:end);

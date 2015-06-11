@@ -54,13 +54,10 @@ elseif ismatrix(varargin{1})
 end  
 
 % determine which is the default colormap
-v2014dt = datetime('September 15, 2014');
-[~,d] = version();
-
-if datetime(d)>=v2014dt
-    defmap = parula(64);
+if verLessThan('matlab','8.4')
+    defmap = 'jet';
 else
-    defmap = jet(64);
+    defmap = 'parula';
 end
 % Determine the properties
 paramstr = varargin(4:2:end);
