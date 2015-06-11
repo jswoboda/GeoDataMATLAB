@@ -1,4 +1,4 @@
-function [hcontour, h] = contourGD(GD,varargin)
+function [varargout] = contourGD(GD,varargin)
 %SLICEANDMAP Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -17,16 +17,16 @@ v2014dt = datetime('September 15, 2014');
 [~,d] = version();
 
 if datetime(d)>=v2014dt
-    defmap = parula(64);
+    defmap = 'parula';
 else
-    defmap = jet(64);
+    defmap = 'jet';
 end
 
 paramstr = varargin(4:2:end);
 paramvals = varargin(5:2:end);
 poss_labels={'key','Fig','axh','title','time','bounds','colormap'};
 varnames = {'key','figname','axh','titlestr','timenum','vbound','cmap'};
-vals = {1,nan,nan,'Generic',1,nan,defmap};
+vals = {1,nan,nan,'',1,nan,defmap};
 checkinputs(paramstr,paramvals,poss_labels,vals,varnames)
 
 if isnumeric(key)
@@ -39,6 +39,8 @@ end
 if isnumeric(axh);
     axh=gca;
 end
+
+titlestr = insertinfo(titlestr,'key',key,'time',GD.times(timenum,1),'timend',GD.times(timenum,2));
 
 %% Create meshgrids
 v = GD.data.(key)(:,timenum);
@@ -90,11 +92,15 @@ end
 %% Plotting
 [Xmat,Ymat] = meshgrid(xaxis,yaxis);
 
-[hcontour, h] = contour(Xmat,Ymat,dataval);
+[~, h] = contour(Xmat,Ymat,dataval);
 title([titlestr,' ', axstr,' = ',num2str(dimval)],'FontSize',16)
 caxis(vbound);
-contourcmap(cmap,'SourceObject',axh)
+hbar =contourcmap(cmap,'SourceObject',axh,'Colorbar','on');
 
 xlabel(['\bf ',xlab,' [km]']);
 ylabel(['\bf ',ylab,' [km]']);
-
+varargout=cell(1,nargout);
+varargout{1}=h;
+if nargout==2
+    varargout{2}=hbar;
+end

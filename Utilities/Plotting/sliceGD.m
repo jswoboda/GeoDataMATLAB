@@ -67,7 +67,7 @@ paramstr = varargin(4:2:end);
 paramvals = varargin(5:2:end);
 poss_labels={'key','Fig','axh','title','time','bounds','twodplot','colormap'};
 varnames = {'key','figname','axh','titlestr','timenum','vbound','twodplot','cmap'};
-vals = {1,nan,nan,'Generic',1,[nan,nan],false,defmap};
+vals = {1,nan,nan,'',1,[nan,nan],false,defmap};
 checkinputs(paramstr,paramvals,poss_labels,vals,varnames)
 
 % apply default parameters 

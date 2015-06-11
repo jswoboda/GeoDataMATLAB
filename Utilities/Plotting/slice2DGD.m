@@ -1,4 +1,4 @@
-function hslice = slice2DGD(GD,varargin)
+function varargout = slice2DGD(GD,varargin)
 % slice2DGD.m
 % by John Swoboda
 % This function will take a slice out of the data volume and plot its
@@ -62,9 +62,9 @@ end
 % Determine the properties
 paramstr = varargin(4:2:end);
 paramvals = varargin(5:2:end);
-poss_labels={'key','Fig','axh','title','time','bounds','colormap'};
-varnames = {'key','figname','axh','titlestr','timenum','vbound','cmap'};
-vals = {1,nan,nan,'Generic',1,[nan,nan],defmap};
+poss_labels={'key','Fig','axh','title','time','bounds','colormap','overlay','cbar'};
+varnames = {'key','figname','axh','titlestr','timenum','vbound','cmap','overlay','cbar'};
+vals = {1,nan,nan,'',1,[nan,nan],defmap,false,false};
 checkinputs(paramstr,paramvals,poss_labels,vals,varnames)
 % apply default parameters 
 if isnumeric(key)
@@ -138,12 +138,23 @@ elseif strcmp(axstr,'z')
     ylab = 'y';
 end
 %% Plot image
-hslice = imagesc(xaxis,yaxis,dataval);
-title([titlestr,' ', axstr,' = ',num2str(dimval)],'FontSize',16)
-caxis(vbound);
-colormap(cmap)
+if overlay
+    cdata = makecdata(dataval,cmap,vbound);
+    hslice = image(xaxis,yaxis,cdata);
+else
+    hslice = imagesc(xaxis,yaxis,dataval,vbound);
+    colormap(axh,cmap)
+end
 
+title([titlestr,' ', axstr,' = ',num2str(dimval)],'FontSize',16)
 xlabel(['\bf ',xlab,' [km]']);
 ylabel(['\bf ',ylab,' [km]']);
 set(gca,'Ydir','normal')
 shading flat;
+varargout = cell(1,nargout);
+    
+varargout{1} = hslice;
+if cbar ||nargout==2
+    hbar = colorbar(axh); 
+    varargout{2} = hbar;
+end
