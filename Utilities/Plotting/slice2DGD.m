@@ -137,11 +137,10 @@ elseif strcmp(axstr,'z')
     xlab = 'x';
     ylab = 'y';
 end
+[curdata alpha] = makecdata(dataval,cmap,vbound);
 %% Plot image
-hslice = imagesc(xaxis,yaxis,dataval);
+hslice = imagesc(xaxis,yaxis,dataval,'Cdata',curdata);
 title([titlestr,' ', axstr,' = ',num2str(dimval)],'FontSize',16)
-caxis(vbound);
-colormap(cmap)
 
 xlabel(['\bf ',xlab,' [km]']);
 ylabel(['\bf ',ylab,' [km]']);

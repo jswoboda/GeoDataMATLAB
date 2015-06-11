@@ -82,21 +82,19 @@ for k =1:length(omtikeep)
         ylabel(hcb,'N_e in m^{-3}');
         hold all
         omtislice = sliceGD(omtiGD,[],[],[400],'key','optical','Fig',hfig,'axh',hax,'title'...
-            ,'N_e and OMTI at $thm','time',k,'bounds',[200,800],'twodplot',true,'colormap',omtimap);
+           ,'N_e and OMTI at $thm','time',k,'bounds',[200,800],'twodplot',true,'colormap',omtimap);
         axis tight
         view(-40,30);
-  
+        
         hax2 = subplot(2,2,2);
         risr2dslic = slice2DGD(risrGD,'z',400,'value','key','ne','Fig',hfig,'axh',hax2,'title'...
             ,'N_e at $thm','time',curirt,'bounds',[5e9,5e11]);
         hcb2 = colorbar('peer', hax2);
-        freezeColors(hax2)
         ylabel(hcb2,'N_e in m^{-3}');
         
         hax3 = subplot(2,2,3);     
         omti2dslic = slice2DGD(omtiGD,'z',400,'value','key','optical','Fig',hfig,'axh',hax3,'title'...
            ,'OMTI at $thm','time',k,'bounds',[200,800],'colormap',omtimap);
-        freezeColors(hax3)
         hold all
         [contimg, h] = contourGD(risrGD,'z',400,'value','key','ne','Fig',hfig,'axh',hax3,'title'...
             ,'N_e at $thm','time',curirt,'bounds',[200,800],'colormap','cool');
