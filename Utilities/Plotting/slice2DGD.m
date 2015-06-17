@@ -1,4 +1,4 @@
-function hslice = slice2DGD(GD,varargin)
+function [hslice, varargout] = slice2DGD(GD,varargin)
 % slice2DGD.m
 % by John Swoboda
 % This function will take a slice out of the data volume and plot its
@@ -37,6 +37,7 @@ function hslice = slice2DGD(GD,varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Output
 % hslice - The handle for the plotted object.
+% hcb - The handle of the colorbar.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 assert(strcmpi(GD.coordnames,'cartesian'),'GeoData object needs to be in cartisian coordinates.')
 %% Main inputs
@@ -137,11 +138,12 @@ elseif strcmp(axstr,'z')
     xlab = 'x';
     ylab = 'y';
 end
-[curdata alpha] = makecdata(dataval,cmap,vbound);
+curdata = makecdata(dataval,cmap,vbound);
 %% Plot image
 hslice = imagesc(xaxis,yaxis,dataval,'Cdata',curdata);
 title([titlestr,' ', axstr,' = ',num2str(dimval)],'FontSize',16)
-
+hcb = colorbar();
+varargout{1} = hcb;
 xlabel(['\bf ',xlab,' [km]']);
 ylabel(['\bf ',ylab,' [km]']);
 shading flat;

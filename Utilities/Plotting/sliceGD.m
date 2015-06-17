@@ -1,4 +1,4 @@
-function hslice = sliceGD(GD,varargin)
+function [hslice, varargout] = sliceGD(GD,varargin)
 % sliceGD.m
 % by John Swoboda
 % This function will access the three-d slice function for the GeoData
@@ -36,6 +36,7 @@ function hslice = sliceGD(GD,varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Output
 % hslice - The handle for the plotted object.
+% hcb - The handle of the color bar.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Inputs
 assert(strcmpi(GD.coordnames,'cartesian'),'GeoData object needs to be in cartisian coordinates.')
@@ -68,7 +69,7 @@ paramvals = varargin(5:2:end);
 poss_labels={'key','Fig','axh','title','time','bounds','twodplot','colormap'};
 varnames = {'key','figname','axh','titlestr','timenum','vbound','twodplot','cmap'};
 vals = {1,nan,nan,'Generic',1,[nan,nan],false,defmap};
-checkinputs(paramstr,paramvals,poss_labels,vals,varnames)
+checkinputs(paramstr,paramvals,poss_labels,vals,varnames);
 
 % apply default parameters 
 if isnumeric(key)
@@ -136,7 +137,8 @@ else
     caxis(vbound);
 end
 
-
+hcb = colorbar();
+varargout{1} = hcb;
 xlabel('\bf x [km]');
 ylabel('\bf y [km]');
 zlabel('\bf z [km]');

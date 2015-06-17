@@ -1,8 +1,5 @@
 clear
 clc
-
-addpath('/home/amber/GeoDataMATLAB/freezeColors');
-addpath('/home/amber/GeoDataMATLAB/cm_and_cb_utilities')
 %% Testslice
 % This is a program to test the GeoData code using the files stated below.
 %% Create Figure directory
@@ -74,31 +71,30 @@ for k =1:length(omtikeep)
         % make a four quadrant figure with the combined data in 3-D, two
         % 2-D altitude slices and a beam pattern.
         hfig = figure('Color',[1,1,1],'Position',[680,250,1100,725]);
+        
         hax = subplot(2,2,1);
-
-        risrslic = sliceGD(risrGD,xlist,ylist,zlist,'key','ne','Fig',hfig,'axh',hax,'title'...
+        [risrslic, hcb] = sliceGD(risrGD,xlist,ylist,zlist,'key','ne','Fig',hfig,'axh',hax,'title'...
             ,'','time',curirt,'bounds',[5e9,5e11]);
-        hcb = colorbar();
         ylabel(hcb,'N_e in m^{-3}');
         hold all
-        omtislice = sliceGD(omtiGD,[],[],[400],'key','optical','Fig',hfig,'axh',hax,'title'...
+        omtislice = sliceGD(omtiGD,[],[],[120],'key','optical','Fig',hfig,'axh',hax,'title'...
            ,'N_e and OMTI at $thm','time',k,'bounds',[200,800],'twodplot',true,'colormap',omtimap);
         axis tight
         view(-40,30);
         
         hax2 = subplot(2,2,2);
-        risr2dslic = slice2DGD(risrGD,'z',400,'value','key','ne','Fig',hfig,'axh',hax2,'title'...
+        [risr2dslic, hcb2] = slice2DGD(risrGD,'z',400,'value','key','ne','Fig',hfig,'axh',hax2,'title'...
             ,'N_e at $thm','time',curirt,'bounds',[5e9,5e11]);
-        hcb2 = colorbar('peer', hax2);
         ylabel(hcb2,'N_e in m^{-3}');
+        hold all
         
         hax3 = subplot(2,2,3);     
         omti2dslic = slice2DGD(omtiGD,'z',400,'value','key','optical','Fig',hfig,'axh',hax3,'title'...
            ,'OMTI at $thm','time',k,'bounds',[200,800],'colormap',omtimap);
         hold all
-        [contimg, h] = contourGD(risrGD,'z',400,'value','key','ne','Fig',hfig,'axh',hax3,'title'...
+        [contimg, hcb3] = contourGD(risrGD,'z',400,'value','key','ne','Fig',hfig,'axh',hax3,'title'...
             ,'N_e at $thm','time',curirt,'bounds',[200,800],'colormap','cool');
-        hcb3 = colorbar();
+        ylabel(hcb3,'N_e in m^{-3}');
         
         hax4 = subplot(2,2,4);
         plotbeamposGD(risrGDorig,'Fig',hfig,'axh',hax4);

@@ -1,4 +1,4 @@
-function [hcontour, h] = contourGD(GD,varargin)
+function [hcontour, varargout] = contourGD(GD,varargin)
 %SLICEANDMAP Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -90,11 +90,12 @@ end
 %% Plotting
 [Xmat,Ymat] = meshgrid(xaxis,yaxis);
 
-[hcontour, h] = contour(Xmat,Ymat,dataval);
+hcontour = contour(Xmat,Ymat,dataval);
 title([titlestr,' ', axstr,' = ',num2str(dimval)],'FontSize',16)
 caxis(vbound);
 contourcmap(cmap,'SourceObject',axh)
-
+hcb = colorbar();
+varargout{1} = hcb;
 xlabel(['\bf ',xlab,' [km]']);
 ylabel(['\bf ',ylab,' [km]']);
 set(gca,'YDir','Reverse')
