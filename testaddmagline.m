@@ -2,6 +2,8 @@ clear;
 clc;
 %% Test maglines
 
+% required IGRF toolbox
+% http://www.mathworks.com/matlabcentral/fileexchange/34388-international-geomagnetic-reference-field--igrf--model
 %% Read Data
 risrName = 'ran120219.004.hdf5';
 risrGD = GeoData(@readMadhdf5,risrName,{'nel'});

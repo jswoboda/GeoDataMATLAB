@@ -2,6 +2,8 @@ function [lat, lon, alt] = findmagline(GD)
 %% Desciption
 % this function calculates the magnetic lines for the input
 % geodata
+% required IGRF toolbox
+% http://www.mathworks.com/matlabcentral/fileexchange/34388-international-geomagnetic-reference-field--igrf--model
 
 %% Inputs
 t = GD.times(:,1);
