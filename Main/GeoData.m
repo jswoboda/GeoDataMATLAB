@@ -126,6 +126,7 @@ classdef GeoData <matlab.mixin.Copyable%handle
             end
             
         end
+        
         %% Interpolate
         function interpolate(self,new_coords,newcoordname,varargin)
             % This will interpolate the data in a GeoData object.
@@ -246,7 +247,7 @@ classdef GeoData <matlab.mixin.Copyable%handle
             assert(any(strcmp(curavalmethods,method)),...
                 ['Must be one of the following methods: ', strjoin(curavalmethods,', ')]);
             
-            Nt = length(self.times);
+            Nt = size(self.times,1);
             ONlocs = size(self.dataloc,1);
             NNlocs = size(new_coords,1);
             % Loop through parameters and create temp variable
@@ -321,11 +322,15 @@ classdef GeoData <matlab.mixin.Copyable%handle
                 return
             end
             
-            time1 = self.times(:);
-            avdiff = mean(diff(time1));
-            time2 = circshift(time1,-1);
-            time2(end) = time2(end-1)+avdiff;
-            self.times = [time1,time2];
+            if length(self.times)>1
+                time1 = self.times(:);
+                avdiff = mean(diff(time1));
+                time2 = circshift(time1,-1);
+                time2(end) = time2(end-1)+avdiff;
+                self.times = [time1,time2];
+            else
+                self.times=[self.times,self.times+60];
+            end
         end
         %% Coordinate change
         function oc = changecoords(self,newcoordname)
@@ -378,7 +383,7 @@ classdef GeoData <matlab.mixin.Copyable%handle
                     % TODO make this into a seperate function
                     % For some god damn reason matlab can not write strings
                     % to HDF files so for now we have this bull shit.
-                    if ischar(prop1)
+                    if iscell(prop1)||ischar(prop1)
 %                        
                         file_id = H5F.open(filename,'H5F_ACC_RDWR','H5P_DEFAULT');
                         space_id = H5S.create('H5S_SCALAR');

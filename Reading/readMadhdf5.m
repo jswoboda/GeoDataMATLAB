@@ -35,25 +35,27 @@ end
 
 if radar == 1
     angle1 = 'elm';
-    rng = all_data.('gdalt');
-elseif radar == 2
+    rng = all_data.('range');
+    azm = (all_data.az1+all_data.az2)/2;
+    el = (all_data.el1+all_data.el2)/2;
+    evnend = all_data.posf;  
+    
+else
     angle1 = 'elm';
     rng = all_data.('range');
-elseif radar ==3
-    angle1 = 'elm';
-    rng = all_data.('range');
-end
 
-try
-    el = all_data.(angle1);
-catch 
-    el = NaN(size(rng));
-end
 
-try
-    azm = all_data.('azm');
-catch 
-    azm = NaN(size(rng));
+    try
+        el = all_data.(angle1);
+    catch 
+        el = NaN(size(rng));
+    end
+
+    try
+        azm = all_data.('azm');
+    catch 
+        azm = NaN(size(rng));
+    end
 end
 % take out nans
 nan_ar = isnan(rng)|isnan(el)|isnan(azm);
@@ -75,24 +77,73 @@ times2 = all_data.('ut2_unix')(notnan);
 all_times = [times1,times2];
 
 [uniq_times,~,ictime] = unique(all_times,'rows');
+% for sondastrom data
 
 %initialize and fill data dictionary with parameter arrays
 data = struct();
 maxcols = size(uniq_times,1);
 maxrows = size(dataloc,1);
+
+% for sondastrom data
+
+if radar==1
+    times1 = all_data.('ut1_unix');
+    times2 = all_data.('ut2_unix');
+    all_times = [times1,times2];
+
+    [uniq_times1,~,ictime1] = unique(all_times,'rows');
+    scansend = unique(ictime1(logical(evnend)));
+    scansbeg = circshift(scansend(:),1);
+    scansbeg(1) =0;
+    scansbeg = scansbeg+1;    
+    uniq_times = [uniq_times(scansbeg,1),uniq_times(scansend,2)];
+end
+nanar1 = true(maxrows,1);
+% fill the arrays
 for ip =1:length( paramstr)
     p=paramstr{ip};
     if isempty(strmatch(p, fieldnames(all_data)))
         warning( [ p,  ' is not a valid parameter name.'])
         continue
     end
-    tempdata = all_data.(p)(notnan); %list of parameter pulled from all_data
-    temparray = zeros([maxrows,maxcols]); %converting the tempdata list into array form
-    linind = sub2ind(size(temparray),icloc,ictime);
-    temparray(linind)=double(tempdata);
+    notnandata = find(~isnan(all_data.(p)(notnan)));
+    datared = all_data.(p)(notnan);
+    datared(datared==0) = NaN;
+    tempdata = datared(notnandata); %list of parameter pulled from all_data
+%     temparray = sparse(maxrows,maxcols); %converting the tempdata list into array form
+    temparray = sparse(icloc(notnandata),ictime(notnandata),double(tempdata),maxrows,maxcols);
     
+    if radar==1
+        NNt = length(scansbeg);
+        temparr2 = sparse(maxrows,NNt);
+        for iscan = 1:NNt
+            ibeg = scansbeg(iscan);
+            iend = scansend(iscan);
+            scanvec = ibeg:iend;
+            [rows1,~] = find(temparray(:,scanvec));
+            tempsum = sum(temparray(:,scanvec),2);
+            [counts,locs]=hist(rows1,unique(rows1));
+            tempsum(locs) = tempsum(locs)./counts';
+            temparr2(:,iscan) = tempsum;
+        end
+        temparray = temparr2;
+    end
+    nanar1 = all(~temparray,2)&nanar1;
     data.(p)=temparray;
 end
+for ip =1:length( paramstr)
+    p=paramstr{ip};
+    data.(p) = data.(p)(~nanar1,:);
+    data.(p) = full(data.(p));
+    [rowsz,colsz] = find(isnan(data.(p)));
+    nnentries = data.(p)~=0;
+    data.(p)(rowsz,colsz) = 0;
+     
+    tzero = nan(size(data.(p)));
+    tzero(nnentries) = data.(p)(nnentries);
+    data.(p)=tzero;
+end
+dataloc = dataloc(~nanar1,:);
 %get the sensor location (lat, long, rng)
 lat = str2double(sensor_data(8,:));
 lon = str2double(sensor_data(9,:));
