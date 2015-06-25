@@ -24,8 +24,8 @@ for k =1:length(strin);
         strout=strrep(strout,'$tu','');
         strout=strrep(strout,'$tdu','');
     else
-        curdt = unixtime2matlab(posix);
-        curdte = unixtime2matlab(posixend);
+        curdt = unixtime2matlab(double(posix));
+        curdte = unixtime2matlab(double(posixend));
         markers = {
             '$thmsehms',...%UT hours minutes seconds - hours minutes seconds
             '$thmehm',...%UT hours minutes - hours minutes

@@ -38,7 +38,7 @@ function hslice = sliceGD(GD,varargin)
 % hslice - The handle for the plotted object.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Inputs
-assert(strcmpi(GD.coordnames,'cartesian'),'GeoData object needs to be in cartisian coordinates.')
+assert(strcmpi(GD.coordnames,'Cartesian'),'GeoData object needs to be in cartisian coordinates.')
 % Determine if given a surface or specific slice values.
 emptyarr = false(1,3);
 for k=1:3
@@ -85,8 +85,13 @@ end
 
     
 % Augment the title string to remove the wildcard characters
-titlestr = insertinfo(titlestr,'key',key,'time',GD.times(timenum,1),'timend',GD.times(timenum,2));
-
+if ismatrix(GD.times)&&~isempty(titlestr)
+    if size(GD.times,2)>1
+        titlestr = insertinfo(titlestr,'key',key,'time',GD.times(timenum,1),'timend',GD.times(timenum,2));
+    else
+        titlestr = insertinfo(titlestr,'key',key,'time',GD.times(timenum,1));
+    end
+end
 v = GD.data.(key)(:,timenum);
 if all(isnan(vbound))
     vbound = [min(v),max(v)];

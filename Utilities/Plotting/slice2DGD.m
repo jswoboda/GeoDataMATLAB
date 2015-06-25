@@ -81,8 +81,13 @@ else
     axes(axh)
 end 
 % Augment the title string to remove the wildcard characters
-titlestr = insertinfo(titlestr,'key',key,'time',GD.times(timenum,1),'timend',GD.times(timenum,2));
-
+if ismatrix(GD.times)&&~isempty(titlestr)
+    if size(GD.times,2)>1
+        titlestr = insertinfo(titlestr,'key',key,'time',GD.times(timenum,1),'timend',GD.times(timenum,2));
+    else
+        titlestr = insertinfo(titlestr,'key',key,'time',GD.times(timenum,1));
+    end
+end
 %% Create meshgrids
 v = GD.data.(key)(:,timenum);
 if all(isnan(vbound))
