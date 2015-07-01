@@ -46,3 +46,8 @@ The @readfunction is a function handle, a MATLAB pointer to a function, that can
 Once the data set is now in the proper format the user can go about augmenting it in a number of ways. The user can augment the values and labeling of the data sets by using the changedata method built into the class. Interpolation methods are avalible in the class to change the coordinate system or simply regrid it in the current system. The size of the data set can be reduced by applying methods to filter out specfic time and data points. A time registration method is also avalible where it will take as input a second instance of the class and determine what measurements overlap in time with the original instance.
 
 At this point the user can plot their results. Each of the plotting tools are set up in different functions in the Plotting folder. These plotting tools will output handles to figures that we plotted along with handles to colorbars if included. 
+
+Examples
+--------
+To run these examples, you need the data files in the Google Drive GeoDataTest folder. 
+Ask the authors for access to these files, which have not been included in the repo to save space.
