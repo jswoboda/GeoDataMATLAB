@@ -88,7 +88,13 @@ elseif strcmp(axstr,'z')
     ylab = 'y';
 end
 %% Plotting
+% zaxis = ones(1,length(xaxis));
+% zaxis = zaxis*dimval;
+% yaxis = reshape(yaxis,[1,50]);
+% [range,az,el] = cart2sphere(xaxis,yaxis,zaxis,'deg');
+
 [Xmat,Ymat] = meshgrid(xaxis,yaxis);
+% [Xmat,Ymat] = meshgrid(az,el);
 
 hcontour = contour(Xmat,Ymat,dataval);
 title([titlestr,' ', axstr,' = ',num2str(dimval)],'FontSize',16)

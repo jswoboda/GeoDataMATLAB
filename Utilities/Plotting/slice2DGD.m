@@ -48,7 +48,6 @@ if ischar(axstr)
 else
     axnum = axstr;
 end
-
 %% Extra parameters
 
 % determine which is the default colormap

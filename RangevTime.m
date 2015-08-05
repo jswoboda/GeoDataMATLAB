@@ -34,27 +34,49 @@ end
 
 paramstr = varargin(1:2:end);
 paramvals = varargin(2:2:end);
-poss_labels={'key','beam','timeunit','Fig','axh','title','colormap'};
-varnames = {'key','beamnum','tunit','figname','axh','titlestr','cmap'};
-vals = {1,1,1,nan,nan,'Generic',defmap};
+poss_labels={'key','beam','desiredel','timeunit','Fig','axh','title','colormap','time'};
+varnames = {'key','beamnum','el','tunit','figname','axh','titlestr','cmap','t'};
+vals = {1,[],[],1,nan,nan,'Generic',defmap,1};
 checkinputs(paramstr,paramvals,poss_labels,vals,varnames);
 
 if strcmp(tunit,'day') == 1
     tid = 'dd';
 elseif strcmp(tunit,'hour') == 1
     tid = 'HH';
+elseif strcmp(tunit,'minute') == 1
+    tid = 'MM';
 end
 
 %% Do work
 % check unique
-[~, ~, ic] = unique(GD.dataloc(:,[2,3]),'rows');
+[azel, ~, ic] = unique(GD.dataloc(:,[2,3]),'rows');
 
-% find related ranges for selected beam
-rang = GD.dataloc(ic == beamnum);
-
-% pull out data values for selected beam
-keydata = GD.data.(key)(ic == beamnum,:);
-t = GD.times(:,1);
+if ~isempty(beamnum)
+    % find related ranges for selected beam
+    rang = GD.dataloc(ic == beamnum);
+    
+    % pull out data values for selected beam
+    keydata = GD.data.(key)(ic == beamnum,:);
+    t = GD.times(:,1);
+    
+elseif ~isempty(el)
+    % find desired beam
+    beamnum = find(azel(:,2) == el);
+    
+    % find related ranges for selected beam
+    if length(beamnum) == 1
+        rang = GD.dataloc(ic == beamnum);
+        % pull out data values for selected beam
+        keydata = GD.data.(key)(ic == beamnum,:);
+    else
+        for k = 1:length(beamnum)
+            rang{k} = GD.dataloc(ic == beamnum(k));
+            % pull out data values for selected beam
+            keydata{k} = GD.data.(key)(ic == beamnum(k),:);
+        end
+    end
+    t = GD.times(:,1);
+end
 
 % convert times
 newt = zeros(1,length(t));
@@ -63,14 +85,43 @@ for i = 1:length(t)
 end
 
 %% Plot
-himage = imagesc(newt,rang,keydata);
-datetick('x',tid)
-set(gca,'YDir','Normal')
-xlabel(['Time (' tunit 's)'])
-ylabel('Range (km)')
-title(key)
-axis tight
-colormap(cmap)
-hcb = colorbar();
-varargout{1} = hcb;
+if length(beamnum) == 1
+    himage = imagesc(newt,rang,keydata);
+    datetick('x',tid)
+    set(gca,'YDir','Normal')
+    xlabel(['Time (' tunit 's)'])
+    ylabel('Range (km)')
+    b = datestr(newt(1,1));
+    title([key ' Start Time: ' b])
+    axis tight
+    colormap(cmap)
+%     keydata(isnan(keydata)) = 3;
+    hcb = colorbar();
+    ylabel(hcb,'N_e in m^{-3}');
+    varargout{1} = hcb;
+    varargout{2} = keydata;
+    varargout{3} = newt;
+    varargout{4} = rang;
+else
+    for j = 1:length(beamnum)
+        fig = 10+j;
+        figure(fig)
+        himage = imagesc(newt,rang{j},keydata{j});
+        datetick('x',tid)
+        set(gca,'YDir','Normal')
+        xlabel(['Time (' tunit 's)'])
+        ylabel('Range (km)')
+        b = datestr(newt(1,1));
+        title([key ' Start Time: ' b])
+        axis tight
+        colormap(cmap)
+%         keydata(isnan(keydata)) = 3;
+        hcb = colorbar();
+        ylabel(hcb,'N_e in m^{-3}');        
+        varargout{1} = hcb;
+        varargout{2} = keydata;
+        varargout{3} = newt;
+        varargout{4} = rang;
+    end
+end
 end

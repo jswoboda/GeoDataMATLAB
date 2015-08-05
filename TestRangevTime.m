@@ -9,11 +9,11 @@ clc
 % end
 
 %% Read data and time register
-risrName = 'ran120219.004.hdf5';
+sonName = '~/data/son130104.001.hdf5';
 key = 'nel';
-risrGD = GeoData(@readMadhdf5,risrName,{key});
-
+sonGD = GeoData(@readMadhdf5,sonName,{key});
+sonGD.timereduce(1:100);
 %% Plotting
-beamnumber = 1;
-[im cb] = RangevTime(risrGD,'key','nel','beam',beamnumber,'timeunit','hour');
+el = 70.02;
+[im cb data t rang] = RangevTime(sonGD,'key','nel','desiredel',el,'timeunit','minute');
 
