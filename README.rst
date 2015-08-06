@@ -2,8 +2,8 @@
  GeoDataMATLAB
 ==============
 
-.. image logo/logo1.png 
-    :alt: GeoDataMATLAB quad plot
+.. image:: logo/logo1.png 
+   :alt: GeoDataMATLAB quad plot
     
 #Overview
 =========
