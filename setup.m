@@ -17,29 +17,29 @@ function setup(varargin)
 % save_location - (Optional) This determines the location of the pathdef.m
 % file is the user chooses to save the file.
 %% Deal with inputs
-if nargin ==0
-    setup_type = 'temp';
-    save_type = 'normal';
-    save_location = [];
-elseif nargin ==1
-    setup_type = varargin{1};
-    save_type = 'normal';
-    save_location = [];
-elseif nargin ==2
-    setup_type = varargin{1};
-    save_type = varargin{2};
-    save_location = [];
-
-elseif nargin==3
-    setup_type = varargin{1};
-    save_type = varargin{2};
-    save_location = varargin{3};
-end
+switch nargin
+    case 0
+        setup_type = 'temp';
+        save_type = 'normal';
+        save_location = [];
+    case 1
+        setup_type = varargin{1};
+        save_type = 'normal';
+        save_location = [];
+    case 2
+        setup_type = varargin{1};
+        save_type = varargin{2};
+        save_location = [];
+    case 3
+        setup_type = varargin{1};
+        save_type = varargin{2};
+        save_location = varargin{3};
+end %switch
 %% Make a test folder
 if strcmp(save_type,'develop')
-    if ~exist('Test','dir')
-        mkdir('Test');
-        disp('Made directory Test/ for testing');
+    try
+        mkdir('Test')
+        disp('Made directory Test/ for testing')
     end
 end
 

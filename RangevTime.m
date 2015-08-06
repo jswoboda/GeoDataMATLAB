@@ -23,13 +23,10 @@ function [himage, varargout] = RangevTime(GD,varargin)
 assert(strcmpi(GD.coordnames,'Spherical'),'Data needs to be in spherical.')
 
 % determine which is the default colormap
-v2014dt = datetime('September 15, 2014');
-[~,d] = version();
-
-if datetime(d)>=v2014dt
-    defmap = parula(64);
-else
+if verLessThan('matlab','8.4')
     defmap = jet(64);
+else
+    defmap = parula(64);
 end
 
 paramstr = varargin(1:2:end);

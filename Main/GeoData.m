@@ -106,7 +106,7 @@ classdef GeoData <matlab.mixin.Copyable%handle
             elseif nargin==3
                 type=varargin{1};
             end
-            assert(any(type==[1,2]),'Type must be 1 or 2');
+            assert(any(type==[1,2]),'Type must be 1 or 2')
             
             if type ==1
                 listkeep = timelist;
