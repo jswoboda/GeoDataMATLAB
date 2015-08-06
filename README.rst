@@ -5,7 +5,7 @@
 .. image:: logo/logo1.png 
    :alt: GeoDataMATLAB quad plot
     
-#Overview
+Overview
 =========
 This is the repository for the MATLAB version of GeoData to plot and analyze data from geophysics sources such as radar and optical systems.
 
