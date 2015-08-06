@@ -58,9 +58,9 @@ catch
 end
 %% take out nans
 notnan = isfinite(rng) & isfinite(el) & isfinite(azm);
-[~,basename] = fileparts(sensor_data(5,:));
+[~,basename,ext] = fileparts(sensor_data(5,:));
 ngood = sum(notnan);
-disp([int2str(ngood), ' good rows found in ', basename ])
+disp([int2str(ngood), ' good rows found in ', basename,ext ])
 
 all_loc = [rng(notnan), azm(notnan), el(notnan)];
 %% create list of unique data location lists
@@ -77,7 +77,7 @@ maxcols = size(uniq_times,1);
 maxrows = size(dataloc,1);
 for ip =1:length( paramstr)
     p=paramstr{ip};
-    if isempty(strcmp(p, fieldnames(all_data)))
+    if ~strcmp(p, fieldnames(all_data))
         warning( [ p,  ' is not a valid parameter name.'])
         continue
     end
