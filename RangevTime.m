@@ -95,7 +95,7 @@ if length(beamnum) == 1
     title([key ' Start Time: ' b])
     axis tight
     colormap(cmap)
-%     keydata(isnan(keydata)) = 3;
+    keydata(isnan(keydata)) = 3;
     hcb = colorbar();
     ylabel(hcb,'N_e in m^{-3}');
     varargout{1} = hcb;
