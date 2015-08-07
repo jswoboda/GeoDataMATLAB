@@ -7,8 +7,10 @@ clc
 sonName = '~/data/son130104.001.hdf5';
 key = {'nel','dnel'};
 sonGD = GeoData(@readMadhdf5,sonName,key);
-sonGD.timereduce(4600:4625);
+sonGD.timereduce(1:20);
 %% Plotting
 el = 70.03;
-[im cb data t rang] = RangevTime(sonGD,'key','nel','desiredel',el,'timeunit','minute');
+[im, cb, data, t, rang] = RangevTime(sonGD,'key',key{1},'desiredel',el,'timeunit','minute');
 
+
+[im2, cb2, data22, t, rang2] = RangevTime(sonGD,'key',key{2},'desiredel',el,'timeunit','minute');

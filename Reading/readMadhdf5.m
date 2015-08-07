@@ -1,4 +1,4 @@
-function [ varargout ]=readMadhdf5(filename, paramstr)
+function [varargout]=readMadhdf5(filename, paramstr)
 %% readMad_hdf5
 % by John Swoboda and Anna Stuhlmacher
 % madrigal h5 read in function for the python implementation of GeoData for Madrigal Sondrestrom data
@@ -10,10 +10,14 @@ function [ varargout ]=readMadhdf5(filename, paramstr)
 % rows are unique data locations (data_loc) = (rng, azm, el1)
 % columns are unique times
 % 
+if ~iscell(paramstr), paramstr={paramstr}; end 
 
-if ~verLessThan('matlab','8.5')
+if false %~verLessThan('matlab','8.5')
    % use a more efficent, human-readable method
-   varargout = readMadhdf5_table(filename,paramstr);
+   [data,coordnames,dataloc,sensorloc,uniq_times] = readMadhdf5_table(filename,paramstr);
+   %have to assemble output here, not in _table function or you'll get cell
+   %array error
+   varargout={data,coordnames,dataloc,sensorloc,uniq_times};
    return
 end
 
@@ -23,7 +27,7 @@ end
 rng = all_data.(radarrng);
 
 try
-    el = all_data.(angle1);
+    el = all_data.('elm');
 catch 
     el = NaN(size(rng));
 end
@@ -41,7 +45,9 @@ disp([int2str(ngood), ' good rows found in ', basename,ext ])
 
 all_loc = [rng(notnan), azm(notnan), el(notnan)];
 %% create list of unique data location lists
-[dataloc,~,icloc] = unique(all_loc,'rows');
+[dataloc,~,icloc] = uniquetol(all_loc,1,...
+                             'ByRows',true,'DataScale',[5,0.6,0.5]);
+%[dataloc,~,icloc] = unique(all_loc,'rows');
 times1 = all_data.('ut1_unix')(notnan);
 times2 = all_data.('ut2_unix')(notnan);
 all_times = [times1,times2];
@@ -52,7 +58,7 @@ all_times = [times1,times2];
 data = struct();
 maxcols = size(uniq_times,1);
 maxrows = size(dataloc,1);
-if ~iscell(paramstr), paramstr={paramstr}; end 
+
 for ip =1:length( paramstr)
     p=paramstr{ip};
     if ~strcmp(p, fieldnames(all_data))
@@ -67,31 +73,33 @@ for ip =1:length( paramstr)
     data.(p)=temparray;
 end
 %% assemble output
-varargout = {data,coordnames,dataloc,sensorloc,double(uniq_times)};
+varargout={data,coordnames,dataloc,sensorloc,double(uniq_times)};
 end %function
 
-function varargout = readMadhdf5_table(filename,paramstr)
+function [data,coordnames,dataloc,sensorloc,uniq_times] = readMadhdf5_table(filename,paramstr)
 %% using tables (like Pandas DataFrames)
 % Michael Hirsch
 % 
 
 [all_data,sensorloc,coordnames,radarrng] = loadisrh5(filename);
-T = struct2table(all_data);
+Tall_data = struct2table(all_data);
 %% filter out bad observations (missing data)
-Tok = all(~ismissing(T(:,{radarrng,'azm','elm'})),2);
-T = T(Tok,:);
+Tok = all(~ismissing(Tall_data(:,{radarrng,'azm','elm'})),2);
+filt_data = Tall_data(Tok,:);
 %% find unique times and beam configurations
-uniq_times = unique(T{:,'ut1_unix'},'rows');
+uniq_times = double(unique(filt_data{:,'ut1_unix'}));
 % this uniquetol is set to ABSOLUTE not relative tolerance see 
 % help uniquetol
-dataloc = uniquetol(T{:,{radarrng,'azm','elm'}},1,'ByRows',true,'DataScale',[0.1,0.6,0.5]);
+% TODO what is proper tolerance based on radar modulation and steering performance?
+dataloc = uniquetol(filt_data{:,{radarrng,'azm','elm'}},1,'ByRows',true,'DataScale',[5,0.6,0.5]);
+
+uniq_beams = uniquetol(filt_data{:,{radarrng,'azm','elm'}},1,'ByRows',true,'DataScale',[Inf,0.6,0.5]);
+nbeams = size(uniq_beams,1);
 
 for p = paramstr 
     %note, as in GeoDataPython, we reshape Fortran-order
-    data.(p) = reshape(T{:,p}, height(dataloc), length(uniq_times));
+    data.(p{1}) = reshape(filt_data{:,p}, size(dataloc,1)/nbeams, length(uniq_times));
 end %for
-%% assemble output
-varargout = {data,coordnames,dataloc,sensorloc,double(uniq_times)};
 end %function
 
 function [all_data,sensorloc,coordnames,radarrng,sensor_data] = loadisrh5(fn)

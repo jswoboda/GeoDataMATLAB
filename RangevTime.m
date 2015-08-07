@@ -57,8 +57,9 @@ if ~isempty(beamnum)
     t = GD.times(:,1);
     
 elseif ~isempty(el)
-    % find desired beam
-    beamnum = find(azel(:,2) == el);
+    % find desired beam--have to use findnearest because of slight pointing
+    % errors and floating point precision
+    beamnum = findnearest(azel(:,2), el);
     
     % find related ranges for selected beam
     if length(beamnum) == 1
@@ -82,14 +83,17 @@ for i = 1:length(t)
 end
 
 %% Plot
-if length(beamnum) == 1
+if isempty(beamnum)
+    error('somehow we do not know what your beam numbers are')
+elseif length(beamnum) == 1
+    figure
     himage = imagesc(newt,rang,keydata);
     datetick('x',tid)
     set(gca,'YDir','Normal')
     xlabel(['Time (' tunit 's)'])
     ylabel('Range (km)')
     b = datestr(newt(1,1));
-    title([key ' Start Time: ' b])
+    title([key ' Start Time: ' b ' Beam # ',int2str(beamnum)])
     axis tight
     colormap(cmap)
     keydata(isnan(keydata)) = 3;
