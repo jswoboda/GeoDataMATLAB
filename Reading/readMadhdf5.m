@@ -11,39 +11,16 @@ function [ varargout ]=readMadhdf5(filename, paramstr)
 % columns are unique times
 % 
 
-%% open hdf5 file
-all_data = h5read(filename,'/Data/Table Layout');
-sensor_struct = h5read(filename,'/Metadata/Experiment Parameters');
-sensor_data = sensor_struct.value';
-
-sensorname = sensor_data(1,:);
-
-switch lower(sensorname(1:10))
-    case 'sondrestro'
-        radar = 1;
-        disp('Sondrestrom data')
-    case 'poker flat'
-        radar = 2;
-        disp('PFISR data')
-    case 'resolute b'
-        radar = 3;
-        disp('RISR data')
-    otherwise
-        error('Sensor type not supported by program in this version')   
+if ~verLessThan('matlab','8.5')
+   % use a more efficent, human-readable method
+   varargout = readMadhdf5_table(filename,paramstr);
+   return
 end
+
+%% load data
+[all_data,sensorloc,coordnames,radarrng,sensor_data] = loadisrh5(filename);
 %% get the data location (range, el1, azm)
-
-switch radar 
-    case 1
-        angle1 = 'elm';
-        rng = all_data.('gdalt');
-    case 2
-        angle1 = 'elm';
-        rng = all_data.('range');
-    case 3
-        angle1 = 'elm';
-        rng = all_data.('range');
-end
+rng = all_data.(radarrng);
 
 try
     el = all_data.(angle1);
@@ -89,11 +66,59 @@ for ip =1:length( paramstr)
     
     data.(p)=temparray;
 end
-%get the sensor location (lat, long, rng)
+%% assemble output
+varargout = {data,coordnames,dataloc,sensorloc,double(uniq_times)};
+end %function
+
+function varargout = readMadhdf5_table(filename,paramstr)
+%% using tables (like Pandas DataFrames)
+% Michael Hirsch
+% 
+
+[all_data,sensorloc,coordnames,radarrng] = loadisrh5(filename);
+T = struct2table(all_data);
+%% filter out bad observations (missing data)
+Tok = all(~ismissing(T(:,{radarrng,'azm','elm'})),2);
+T = T(Tok,:);
+%% find unique times and beam configurations
+uniq_times = unique(T{:,'ut1_unix'},'rows');
+% this uniquetol is set to ABSOLUTE not relative tolerance see 
+% help uniquetol
+dataloc = uniquetol(T{:,{radarrng,'azm','elm'}},1,'ByRows',true,'DataScale',[1,1,1]);
+
+for p = paramstr 
+    %note, as in GeoDataPython, we reshape Fortran-order
+    data.(p) = reshape(T{:,p}, height(dataloc), length(uniq_times));
+end %for
+%% assemble output
+varargout = {data,coordnames,dataloc,sensorloc,double(uniq_times)};
+end %function
+
+function [all_data,sensorloc,coordnames,radarrng,sensor_data] = loadisrh5(fn)
+%% open hdf5 file
+all_data = h5read(fn,'/Data/Table Layout');
+sensor_struct = h5read(fn,'/Metadata/Experiment Parameters');
+sensor_data = sensor_struct.value';
+
+sensorname = sensor_data(1,:);
+
+switch lower(sensorname(1:10))
+    case 'sondrestro'
+        radarrng = 'gdalt';
+        disp('Sondrestrom data')
+    case 'poker flat'
+        radarrng = 'range';
+        disp('PFISR data')
+    case 'resolute b'
+        radarrng = 'range';
+        disp('RISR data')
+    otherwise
+        error('Sensor type not supported by program in this version')   
+end
+%% get the sensor location (lat, long, rng)
 lat = str2double(sensor_data(8,:));
 lon = str2double(sensor_data(9,:));
 sensor_alt = str2double(sensor_data(10,:));
 sensorloc =[lat,lon,sensor_alt];
 coordnames = 'Spherical';
-
-varargout = {data,coordnames,dataloc,sensorloc,double(uniq_times)};
+end %function
