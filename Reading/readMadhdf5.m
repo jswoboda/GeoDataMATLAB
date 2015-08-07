@@ -84,7 +84,7 @@ T = T(Tok,:);
 uniq_times = unique(T{:,'ut1_unix'},'rows');
 % this uniquetol is set to ABSOLUTE not relative tolerance see 
 % help uniquetol
-dataloc = uniquetol(T{:,{radarrng,'azm','elm'}},1,'ByRows',true,'DataScale',[1,1,1]);
+dataloc = uniquetol(T{:,{radarrng,'azm','elm'}},1,'ByRows',true,'DataScale',[0.1,0.6,0.5]);
 
 for p = paramstr 
     %note, as in GeoDataPython, we reshape Fortran-order
