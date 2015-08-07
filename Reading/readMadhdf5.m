@@ -75,6 +75,7 @@ all_times = [times1,times2];
 data = struct();
 maxcols = size(uniq_times,1);
 maxrows = size(dataloc,1);
+if ~iscell(paramstr), paramstr={paramstr}; end 
 for ip =1:length( paramstr)
     p=paramstr{ip};
     if ~strcmp(p, fieldnames(all_data))

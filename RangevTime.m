@@ -109,7 +109,7 @@ else
         xlabel(['Time (' tunit 's)'])
         ylabel('Range (km)')
         b = datestr(newt(1,1));
-        title([key ' Start Time: ' b])
+        title([key ' Start Time: ' b ' Beam # ',int2str(beamnum(j))])
         axis tight
         colormap(cmap)
 %         keydata(isnan(keydata)) = 3;
