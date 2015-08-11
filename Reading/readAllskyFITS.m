@@ -74,16 +74,19 @@ elseif nargin<5
     times(end,end)=timevec(end)+avdiff;
     
 end   
-%% Fix problems with the az matrix
+%% Fix problems with the coordinate matrix
 % Look for large gradients in the az mapping because the in between values
 % will put the data in the wrong spot.
 grad_thresh = 15;
 [Fx,Fy] = gradient(az_i);
 bad_data_logic = hypot(Fx, Fy) > grad_thresh;
 az_i(bad_data_logic) = 0;
-
+zerodata = az_i==0 & el_i==0;
+keepdata = ~zerodata(:);
 coordnames = 'Spherical';
-dataloc = [alt*ones(prod(allskysize),1).*(1+cos(el_i(:))),az_i(:),el_i(:)];
+dataloc = [alt*ones(prod(allskysize),1).*(1+cosd(el_i(:))),az_i(:),el_i(:)];
+dataloc = dataloc(keepdata,:);
+data.optical=data.optical(keepdata,:);
 %% FIX This
 
 sensorloc = [65.1260,-147.4789,689 ];

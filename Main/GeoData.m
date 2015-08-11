@@ -166,7 +166,7 @@ classdef GeoData <matlab.mixin.Copyable%handle
             assert(any(strcmp(curavalmethods,method)),...
                 ['Must be one of the following methods: ', strjoin(curavalmethods,', ')]);
             
-            Nt = length(self.times);
+            Nt = size(self.times,1);
             ONlocs = size(self.dataloc,1);
             NNlocs = size(new_coords,1);
             curcoords = self.changecoords(newcoordname);
