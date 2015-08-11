@@ -71,6 +71,9 @@ for k = 1:length(all_paths_cell)
     if ~isempty(strfind(all_paths_cell{k},[filesep,'Test']))
         path_log(k) = false;
     end
+    if ~isempty(strfind(all_paths_cell{k},[filesep,'logo']))
+        path_log(k) = false;
+    end
     % Some times this adds empty strings to the path
     if isempty(all_paths_cell{k})
         path_log(k) = false;
@@ -83,7 +86,7 @@ disp('Folders added to the path:')
 disp(all_paths_cell')
 %% Make path perminent or not
 if strcmpi(setup_type,'permanent')
-    resp = input('Are you sure you want to perminetly modify your path, y/n', 's');
+    resp = input('Are you sure you want to perminetly modify your path, y/n: ', 's');
     if strcmpi(resp, 'y')&&exist(save_location,'dir')
         status = savepath(fullfile(save_location,'pathdef.m'));
         if ~status

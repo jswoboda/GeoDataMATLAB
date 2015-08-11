@@ -332,6 +332,30 @@ classdef GeoData <matlab.mixin.Copyable%handle
                 self.times=[self.times,self.times+60];
             end
         end
+        
+        function [outcell,self2] = timeregisterGD(self,self2)
+            regcell_orig = self.timeregister(self2);
+
+            combreg = [regcell_orig{:}];
+            unreg = unique(combreg);
+            
+            Nt = size(self.times,1);
+            % Get the omti data that has cooresponding risrdata.
+            selfkeep = [];
+            for k = 1:Nt
+
+                if ~isempty(regcell_orig{k})
+                    selfkeep = [selfkeep,k];
+                end
+            end
+            self.timereduce(selfkeep)
+            % Reduce the time points in the original data so we don't have to do a
+            % whole lot of interpolation
+            self2.timereduce(unreg);
+            % do time registration gain 
+            outcell = self.timeregister(self2);
+        end
+            
         %% Coordinate change
         function oc = changecoords(self,newcoordname)
             % Changes the coordinates

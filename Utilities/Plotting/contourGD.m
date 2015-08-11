@@ -90,7 +90,8 @@ end
 [Xmat,Ymat] = meshgrid(xaxis,yaxis);
 
 [~, h] = contour(Xmat,Ymat,dataval);
-title([titlestr,' ', axstr,' = ',num2str(dimval)],'FontSize',16)
+%title([titlestr,' ', axstr,' = ',num2str(dimval),' [km]'],'FontSize',16)
+title(titlestr,'FontSize',16);
 caxis(vbound);
 hbar =contourcmap(cmap,'SourceObject',axh,'Colorbar','on');
 
