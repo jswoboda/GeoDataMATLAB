@@ -84,7 +84,7 @@ az_i(bad_data_logic) = 0;
 zerodata = az_i==0 & el_i==0;
 keepdata = ~zerodata(:);
 coordnames = 'Spherical';
-dataloc = [alt*ones(prod(allskysize),1).*(1+cosd(el_i(:))),az_i(:),el_i(:)];
+dataloc = [alt*ones(prod(allskysize),1)./cosd(90-el_i(:)),az_i(:),el_i(:)];
 dataloc = dataloc(keepdata,:);
 data.optical=data.optical(keepdata,:);
 %% FIX This
