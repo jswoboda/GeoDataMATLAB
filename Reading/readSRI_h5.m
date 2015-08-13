@@ -16,13 +16,15 @@ varargout = cell(1,length(varnames));
 %% Variable Arguements In
 filename = varargin{1};
 parameter = varargin{2};
+%% Determine type of file
+hfileinfo = hdf5info(filename);
 
-
+hfilegroups = {hfileinfo.GroupHierarchy.Groups(:).Name};
 %% Load SRI H5 file
 
-datadict = {'Ne', 'dNe', 'Vi', 'dVi', 'Ti', 'dTi', 'Te', 'dTe';
+datadict = {'Ne', 'dNe', 'Vi', 'dVi', 'Ti', 'dTi', 'Te', 'dTe','NenoTr','Nemod';
     '/FittedParams/Ne', '/FittedParams/dNe', '/FittedParams/Fits', '/FittedParams/Errors', '/FittedParams/Fits',...
-    '/FittedParams/Errors', '/FittedParams/Fits', '/FittedParams/Errors'};
+    '/FittedParams/Errors', '/FittedParams/Fits', '/FittedParams/Errors','/NeFromPower/Ne_NoTr','/NeFromPower/Ne_Mod'};
 
 % Define coordinate type
 coordnames = 'Spherical';
@@ -55,9 +57,19 @@ alt = hdf5read(filename,'/Site/Altitude');
 sensorloc = [lat lon alt];
 varargout{4} = sensorloc;
 %% Load Data Locations
-range = hdf5read(filename,'/FittedParams/Range')/1000; %in km
 angles = hdf5read(filename,'BeamCodes');
-angles = angles(2:3,:);
+angles = double(angles(2:3,:));
+nangles = size(angles,2);
+if any(ismember(hfilegroups,'/FittedParams'))
+    range = hdf5read(filename,'/FittedParams/Range')/1000; %in km
+else
+    range = double(hdf5read(filename,'/NeFromPower/Range'))/1000; %in km
+    rkeep = range>30;
+    range = range(rkeep);
+    range = repmat(range,[1,nangles]);
+    
+end
+
 nrange = length(range(:,1));
 repangles = repmat(angles,1,nrange);
 allaz = repangles(1:2:end);
@@ -84,8 +96,14 @@ for k = 1:length(parameter)
         tempData = squeeze(tempData(2,1,:,:,:));
     elseif (paramindex == 7 || paramindex == 8) %For Te or dTe
         tempData = squeeze(tempData(2,end,:,:,:));
+    elseif (paramindex ==9 ||paramindex ==10)
+        tempData = double(tempData(rkeep,:,:));
     end
     tempData = tempData(:,:,T1:T2);
+    % the data must first be permutated so the angle dimension is first
+    % followed by the range dimension and then the times. This way when its
+    % vectorized the angles will vary first and then the ranges as
+    % rasterization in matlab is column stacking.
     data.(parameter{k}) = reshape(permute(tempData,[2 1 3]),[size(dataloc,1),size(times,1)]);
 end
 varargout{1} = data;
