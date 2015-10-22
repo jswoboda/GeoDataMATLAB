@@ -111,7 +111,7 @@ classdef GeoData <matlab.mixin.Copyable%handle
             if type ==1
                 listkeep = timelist;
             elseif type==2
-                [~,~,listkeep] = intersect(self.times,timelist);
+                [~,~,listkeep] = intersect(self.times(1,:),timelist);
             end
             if ndims(self.times)==1
                 self.times=self.times(listkeep);
