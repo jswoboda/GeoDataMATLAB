@@ -92,6 +92,14 @@ classdef GeoData <matlab.mixin.Copyable%handle
             end
             
         end
+        %% Check Satilite
+        function  issat = issatellite(self)
+            if all(isnan(self.sensorloc))
+                issat=true;
+            else
+                issat=false;
+            end
+        end
         %% Reduce time
         function  timereduce(self,timelist,varargin)
             % This pull out time instances.
@@ -120,11 +128,17 @@ classdef GeoData <matlab.mixin.Copyable%handle
             end
             
             datafields = self.datanames();
+            % need to check data
+            if self.issatellite()
+                for ifield = 1:length(datafields)
+                    self.data.(datafields{ifield})= self.data.(datafields{ifield})(listkeep);
+                end
+            else
             
-            for ifield = 1:length(datafields)
-                self.data.(datafields{ifield})= self.data.(datafields{ifield})(:,listkeep);
+                for ifield = 1:length(datafields)
+                    self.data.(datafields{ifield})= self.data.(datafields{ifield})(:,listkeep);
+                end
             end
-            
         end
         
         %% Interpolate
