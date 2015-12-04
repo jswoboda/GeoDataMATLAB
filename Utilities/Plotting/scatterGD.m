@@ -58,9 +58,9 @@ end
 
 paramstr = varargin(4:2:end);
 paramvals = varargin(5:2:end);
-poss_labels={'key','Fig','axh','title','time','bounds','colormap'};
-varnames = {'key','figname','axh','titlestr','timenum','vbound','cmap'};
-vals = {1,nan,nan,'',1,nan,defmap};
+poss_labels={'key','Fig','axh','title','time','bounds','colormap','error'};
+varnames = {'key','figname','axh','titlestr','timenum','vbound','cmap','err'};
+vals = {1,nan,nan,'',1,nan,defmap,.1};
 checkinputs(paramstr,paramvals,poss_labels,vals,varnames)
 
 if isnumeric(key)
@@ -75,7 +75,6 @@ if isnumeric(axh);
 end
 
 titlestr = insertinfo(titlestr,'key',key,'time',GD.times(timenum(1),1),'timend',GD.times(timenum(end),2));
-err = .1;
 if strcmpi(GD.coordnames, 'WGS84')
     labs = struct('x',{'Long [deg]'},'y',{'Lat [deg]'},'z',{'Alt [m]'});
 elseif strcmpi(GD.coordnames, 'cartisian')
@@ -180,7 +179,7 @@ else
 end
 %% Plotting
 
-a=25;
+a=15;
 h = scatter(xdata,ydata,a,dataval(:),'filled');
 
 caxis(vbound);
