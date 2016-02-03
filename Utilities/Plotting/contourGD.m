@@ -66,12 +66,18 @@ if isnumeric(key)
     dnames = fieldnames(GD.data);
     key=dnames{key};
 end
+
 if isnumeric(figname)
     figure();
+else
+    set(0, 'CurrentFigure',figname);
 end
+
 if isnumeric(axh);
     axh=gca;
-end
+else
+    axes(axh)
+end 
 
 titlestr = insertinfo(titlestr,'key',key,'time',GD.times(timenum,1),'timend',GD.times(timenum,2));
 

@@ -70,11 +70,12 @@ if isnumeric(key)
     dnames = fieldnames(GD.data);
     key=dnames{key};
 end
+
 if isnumeric(figname)
     figname = figure();
     axh = newplot(figname);
 else
-    figure(figname);
+    set(0, 'CurrentFigure',figname);
 end
 if isnumeric(axh);
     axh=gca;

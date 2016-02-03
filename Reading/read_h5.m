@@ -30,6 +30,9 @@ for k = 1:length(varnames)
                 iset = setnames{m};
                 isetname = iset(length(ivar)+3:end);
                 temparr = h5read(filename,iset);
+                if isa(temparr,'struct')
+                   temparr=temparr.r+1i* temparr.i;
+                end
                 tempstruct.(isetname) = permute(temparr,ndims(temparr):-1:1);
             end
             varargout{k} = tempstruct;
