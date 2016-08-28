@@ -11,8 +11,8 @@ function [x,y,z] = sphere2cart(range,az,el)
 % Outputs
 % x,y,z - Arrays the same size of range, az and el. Will be whatever units
 % range was in.
-kx = sin(az) .* cos(el);
-ky = cos(az) .* cos(el);
+kx = cos(az) .* cos(el);
+ky = sin(az) .* cos(el);
 kz = sin(el);
 
 x = range.*kx;

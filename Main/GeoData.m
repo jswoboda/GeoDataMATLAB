@@ -100,6 +100,26 @@ classdef GeoData <matlab.mixin.Copyable%handle
                 issat=false;
             end
         end
+        %% Add times
+        function add_times(self,self2)
+            alltimes=[self.times;self2.times];
+            [~,I]=sort(alltimes(:,1));
+            alltimes=alltimes(I,:);
+            
+            self.times=alltimes;
+            datafields = self.datanames();
+            
+            for ikeyn=1:length(datafields)
+                ikey=datafields{ikeyn};
+                if self.issatellite()
+                    outarr=[self.data.(ikey);self2.data.(ikey)];
+                    self.data.(ikey)=outarr(I,:);
+                else
+                    outarr=[self.data.(ikey),self2.data.(ikey)];
+                    self.data.(ikey)=outarr(:,I,:);
+                end
+            end
+        end
         %% Reduce time
         function  timereduce(self,timelist,varargin)
             % This pull out time instances.
@@ -326,8 +346,8 @@ classdef GeoData <matlab.mixin.Copyable%handle
             for k =  1:size(times1,1)
                 l = times1(k,:);
                 
-                ind1 = find(l(1)>times2(:,1),1,'last');
-                ind2 = find(l(2)<times2(:,2),1,'first');
+                ind1 = find(l(1)>=times2(:,1),1,'last');
+                ind2 = find(l(2)<=times2(:,2),1,'first');
                 outcell{k}=ind1:ind2;
             end
         end
