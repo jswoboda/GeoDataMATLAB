@@ -24,5 +24,5 @@ elseif strcmpi(varargin{1},'rad')
 end
 
 range = sqrt(x.^2+y.^2+z.^2);
-az = atan2(y,x)*r2d;
+az = atan2(x,y)*r2d;
 el = asin(z./range)*r2d;
