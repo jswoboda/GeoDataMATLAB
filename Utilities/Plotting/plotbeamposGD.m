@@ -23,9 +23,9 @@ function plotbeamposGD(GD,varargin)
 % Determine the properties
 paramstr = varargin(1:2:end);
 paramvals = varargin(2:2:end);
-poss_labels={'Fig','axh','title'};
-varnames = {'figname','axh','titlestr'};
-vals = {nan,nan,'Beampositions'};
+poss_labels={'Fig','axh','title','minring'};
+varnames = {'figname','axh','titlestr','minring'};
+vals = {nan,nan,'Beampositions',30};
 checkinputs(paramstr,paramvals,poss_labels,vals,varnames)
 
 
@@ -38,7 +38,7 @@ end
 if isnumeric(axh);
     axh=gca;
 end
-
+maxel=90-minring;
 %% Determine angles
 
 assert(strcmpi(GD.coordnames,'spherical'),'The GeoData instance must be in spherical coordinates');
@@ -51,9 +51,9 @@ az = az*pi/180;
 
 
 %% Plotting
-
+plotring=maxel+10;
 theta = linspace(0,2*pi,100);
-r10 = 70*ones(1,100);
+r10 = plotring*ones(1,100);
 [xx1,yy1] = pol2cart(theta,r10);
 fill(xx1,yy1,'w')
 hold on
@@ -70,30 +70,31 @@ plot(xx,yy,'o','MarkerFaceColor','b','MarkerEdgeColor','k','MarkerSize',10)
 %Plotting the cardinal directions
 
 
-lin1x=linspace(-70,70,700);
+lin1x=linspace(-plotring,plotring,700);
 lin1y=linspace(0,0,700);
 plot(lin1x,lin1y,':k')
 lin1x=linspace(0,0,700);
-lin1y=linspace(-70,70,700);
+lin1y=linspace(-plotring,plotring,700);
 plot(lin1x,lin1y,':k')
-lin1x=linspace(-70*sind(45),70*sind(45),700);
-lin1y=linspace(-70*cosd(45),70*cosd(45),700);
+lin1x=linspace(-plotring*sind(45),plotring*sind(45),700);
+lin1y=linspace(-plotring*cosd(45),plotring*cosd(45),700);
 plot(lin1x,lin1y,':k')
-lin1x=linspace(-70*sind(45),70*sind(45),700);
-lin1y=linspace(70*cosd(45),-70*cosd(45),700);
+lin1x=linspace(-plotring*sind(45),plotring*sind(45),700);
+lin1y=linspace(plotring*cosd(45),-plotring*cosd(45),700);
 plot(lin1x,lin1y,':k')
 
-text(73,0,'E')
-text(73*cosd(45),73*sind(45),'NE')
-text(-1,73,'N')
-text(-76,0,'W')
-text(-81*cosd(45),76*sind(45),'NW')
-text(-1,-73,'S')
-text(-81*cosd(45),-76*sind(45),'SW')
-text(73*cosd(45),-73*sind(45),'SE')
+text(plotring+3,0,'E')
+text((plotring+3)*cosd(45),(plotring+3)*sind(45),'NE')
+text(-1,(plotring+3),'N')
+text(-(plotring+6),0,'W')
+text(-(plotring+11)*cosd(45),(plotring+6)*sind(45),'NW')
+text(-1,-(plotring+3),'S')
+text(-(plotring+11)*cosd(45),-(plotring+6)*sind(45),'SW')
+text((plotring+3)*cosd(45),-(plotring+3)*sind(45),'SE')
 
 %plotting elevation rings
-elev=[10,20,30,40,50,60];
+
+elev=10:10:maxel;%[10,20,30,40,50,60];
 theta = linspace(0,2*pi,100);
 r20 = elev'*ones(1,100);
 for i=1:length(elev)

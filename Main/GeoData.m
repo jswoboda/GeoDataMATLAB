@@ -343,12 +343,18 @@ classdef GeoData <matlab.mixin.Copyable%handle
                 times2 = [times2(:),timesahead];
             end
             outcell = cell(1, size(times1,1));
+            t2_list=1:size(times2,1);
             for k =  1:size(times1,1)
                 l = times1(k,:);
-                
-                ind1 = find(l(1)>=times2(:,1),1,'last');
-                ind2 = find(l(2)<=times2(:,2),1,'first');
-                outcell{k}=ind1:ind2;
+                log1=l(1)>=times2(:,2);
+                log2=l(2)<times2(:,1);
+                logout=~(log1|log2);
+%                 ind1 = find(l(1)>=times2(:,1),1,'last');
+%                 ind2 = find(l(2)<=times2(:,2),1,'first');
+%                 if isempty(ind1) || isempty(ind2)
+%                     continue;
+%                 end
+                outcell{k}=t2_list(logout);
             end
         end
         function timefix(self)
