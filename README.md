@@ -1,3 +1,6 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.154536.svg)](https://doi.org/10.5281/zenodo.154536)
+
+
 ## GeoDataMATLAB
 ![alt text](https://raw.github.com/jswoboda/GeoDataMATLAB/master/logo/logo1.png "GeoDataMATLAB")
 #Overview
