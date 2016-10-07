@@ -52,5 +52,5 @@ At this point the user can plot their results. Each of the plotting tools are se
 
 Examples
 --------
-To run these examples, you need the data files in the Google Drive GeoDataTest folder. 
+To run these examples, you need the data files in the Google Drive [GeoDataTest folder](https://drive.google.com/drive/folders/0B37DfeCiFYMgaWlObkhpOHFSRXM?usp=sharing). 
 Ask the authors for access to these files, which have not been included in the repo to save space.
