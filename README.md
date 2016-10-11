@@ -9,16 +9,18 @@ This is the repository for the MATLAB version of GeoData to plot and analyze dat
 #Installation
 To install first clone repository:
 
-	$ git clone https://github.com/jswoboda/GeoDataMATLAB.git
+	git clone https://github.com/jswoboda/GeoDataMATLAB.git
 	
 The user should then start MATLAB	 and go to the folder containing the code. 
 
 The software package can be installed in MATLAB by running setup.m, which will add the tools to the MATLAB path. The user can specify they’re developing the toolbox further by adding the string “develop” as the second argument. This will create a directory Test that will be added within the main GeoData directory. This folder will not be added to the path to allow the user to test new functions. There is also an option to create a new path file that can be saved where ever the user wants. It is suggested that this is saved in the MATLAB folder in the user's Documents directory.
 
 ~~~matlab
-cd GeoData 
-setup('permanent','develop'); % perminately saves path and creates test directory.
-setup('permanent','develop',' ~/Documents/MATLAB'); % perminately saves path and creates test directory.
+cd GeoData
+setup  % before each run OR do the following:
+ 
+setup('permanent','develop'); % permanently saves path and creates test directory.
+setup('permanent','develop',' ~/Documents/MATLAB'); % permanently saves path and creates test directory.
 
 ~~~
 
