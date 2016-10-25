@@ -150,8 +150,9 @@ else
     hslice = imagesc(xaxis,yaxis,dataval,vbound);
     colormap(axh,cmap)
 end
-
-title([titlestr,' ', axstr,' = ',num2str(dimval)],'FontSize',16)
+if ~isspace(titlestr)
+    title([titlestr,' ', axstr,' = ',num2str(dimval)],'FontSize',16)
+end
 xlabel(['\bf ',xlab,' [km]']);
 ylabel(['\bf ',ylab,' [km]']);
 set(gca,'Ydir','normal')

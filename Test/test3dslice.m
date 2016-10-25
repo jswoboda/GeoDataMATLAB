@@ -1,6 +1,3 @@
-clear
-clc
-
 %% Testslice
 % This is a program to test the GeoData code using the files stated below.
 %% Create Figure directory
@@ -55,8 +52,8 @@ newcoords = [X(:),Y(:),Z(:)];
 newcoords2 = [Xmat(:),Ymat(:),140*ones(numel(Xmat),1)];
 % copy so you can keep the original beam pattern.
 risrGDorig = copy(risrGD);
-risrGD.interpolate(newcoords,'Cartesian','natural');
-omtiGD.interpolate(newcoords2,'Cartesian','natural','none',true);
+risrGD.interpolate(newcoords,'cartesian','natural');
+omtiGD.interpolate(newcoords2,'cartesian','natural','none',true);
 xlist = [100];
 ylist = [300];
 zlist = [];
@@ -79,22 +76,22 @@ for k =1:length(omtikeep)
         hcb = colorbar();
         ylabel(hcb,'N_e in m^{-3}');
         hold all
-        omtislice = sliceGD(omtiGD,[],[],[400],'key','optical','Fig',hfig,'axh',hax,'title'...
+        omtislice = sliceGD(omtiGD,[],[],[140],'key','optical','Fig',hfig,'axh',hax,'title'...
             ,'N_e and OMTI at $thm','time',k,'bounds',[200,800],'twodplot',true,'colormap',omtimap);
         axis tight
         view(-40,30);
-  
         hax2 = subplot(2,2,2);
         risr2dslic = slice2DGD(risrGD,'z',400,'value','key','ne','Fig',hfig,'axh',hax2,'title'...
             ,'N_e at $thm','time',curirt,'bounds',[5e9,5e11]);
-        hcb2 = colorbar('peer', hax2);
-
+        hcb2 = colorbar();
         ylabel(hcb2,'N_e in m^{-3}');
-        
-        hax3 = subplot(2,2,3);     
-        omti2dslic = slice2DGD(omtiGD,'z',400,'value','key','optical','Fig',hfig,'axh',hax3,'title'...
-           ,' ','time',k,'bounds',[200,800],'colormap',omtimap);
-        hold all
+
+        % This is an overlay plot. First plot the image data then put the
+        % contour overlayed. 
+        hax3 = subplot(2,2,3);
+        omti2dslic = slice2DGD(omtiGD,'z',140,'value','key','optical','Fig',hfig,'axh',hax3,'title'...
+            ,'OMTI at $thm','time',k,'bounds',[200,800],'colormap',omtimap);
+        hcb2 = colorbar();
         % get position of original axis
         hax3p = get(hax3,'pos');
         % Create a new axis and put it over the first one.
@@ -114,10 +111,12 @@ for k =1:length(omtikeep)
         % This turns the background of the second axis off so the original
         % image can be seen. Make sure this comes after the contours.
         axis off;
+        % Plot the beam positions
         hax4 = subplot(2,2,4);
         plotbeamposGD(risrGDorig,'Fig',hfig,'axh',hax4);
         curfilename = [fname,num2str(k,'%0.2d'),'.fig'];
-        saveas(hfig,fullfile(figdir,curfilename));
+        saveas( hfig,fullfile(figdir,curfilename));
         close(hfig);
     end
 end
+    
