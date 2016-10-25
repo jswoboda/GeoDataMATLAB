@@ -33,6 +33,8 @@ for k = 1:length(varnames)
                 if isa(temparr,'struct')
                    temparr=temparr.r+1i* temparr.i;
                 end
+                isetname=strrep(isetname,'+','');
+                isetname=strrep(isetname,'-','');
                 tempstruct.(isetname) = permute(temparr,ndims(temparr):-1:1);
             end
             varargout{k} = tempstruct;
