@@ -3,10 +3,10 @@
 
 ## GeoDataMATLAB
 ![alt text](https://raw.github.com/jswoboda/GeoDataMATLAB/master/logo/logo1.png "GeoDataMATLAB")
-#Overview
+# Overview
 This is the repository for the MATLAB version of GeoData to plot and analyze data from geophysics sources such as radar and optical systems.
 
-#Installation
+# Installation
 To install first clone repository:
 
 	git clone https://github.com/jswoboda/GeoDataMATLAB.git
@@ -24,11 +24,11 @@ setup('permanent','develop',' ~/Documents/MATLAB'); % permanently saves path and
 
 ~~~
 
-#Software Structure
+# Software Structure
 
 The code is broken up into three main directories: Main, Utilities and Reading. Main holds code related to the GeoData class such as the class def file and any other functions that directly use or impact the class. The folder Utilities holds code related to functions that would be used to support the class such as coordinate transforms. Lastly the Reading directory is to be used to store functions that will be used to read in data from new data types.
 
-#Style Guide
+## Style Guide
 This style guide will cover conventions and elements specific to this codebase. For more general tips on proper MATLAB style guidelines see The Elements of MATLAB Style by Richard K. Johnson.
 
 
@@ -40,7 +40,7 @@ The properties names will be all lower case. While all function names will be lo
 
 If the user would like to create test code please do this in the Test folder. Also this code is not be uploaded to the main code base on GitHub. 
 
-#Workflow
+## Workflow
 The GeoData take advantage of a standardized structure of data to give the user access to the avalible tools. It's built off of container class where each instances is a specfic data set. In all cases the user needs to put their data in this structure. This first task will require a line of code similar to the following to start the process,
 
 ~~~matlab
@@ -52,7 +52,8 @@ Once the data set is now in the proper format the user can go about augmenting i
 
 At this point the user can plot their results. Each of the plotting tools are set up in different functions in the Plotting folder. These plotting tools will output handles to figures that we plotted along with handles to colorbars if included. 
 
-Examples
---------
-To run these examples, you need the data files in the Google Drive [GeoDataTest folder](https://drive.google.com/drive/folders/0B37DfeCiFYMgaWlObkhpOHFSRXM?usp=sharing). 
+# Examples
+
+To run these examples, you need the data files in the Google Drive 
+[GeoDataTest folder](https://drive.google.com/drive/folders/0B37DfeCiFYMgaWlObkhpOHFSRXM?usp=sharing). 
 Ask the authors for access to these files, which have not been included in the repo to save space.

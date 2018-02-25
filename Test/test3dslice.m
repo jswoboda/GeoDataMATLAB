@@ -1,13 +1,18 @@
 %% Testslice
 % This is a program to test the GeoData code using the files stated below.
+function test3dslice(figname)
+
+if nargin < 1, figname=[]; end
+
+datadir='~/data/2012-02-19';
 %% Create Figure directory
 figdir = 'figures';
 if ~exist(figdir,'dir')
     mkdir(figdir);
 end
 %% Read data and time register
-risrName = 'ran120219.004.hdf5';
-omtiName = 'OMTIdata.h5';
+risrName = fullfile(datadir,'ran120219.004.hdf5');
+omtiName = fullfile(datadir,'OMTIdata.h5');
 
 omtiGD = GeoData(@read_h5,omtiName);
 risrGD = GeoData(@readMadhdf5,risrName,{'nel'});
@@ -61,7 +66,7 @@ zlist = [];
 %% Plotting
 % plot the data
 omtimap = gray(64);
-fname = 'example';
+
 for k =1:length(omtikeep)
     risrtimes = regcell{k};
     for irt =1:length(risrtimes)
@@ -114,9 +119,15 @@ for k =1:length(omtikeep)
         % Plot the beam positions
         hax4 = subplot(2,2,4);
         plotbeamposGD(risrGDorig,'Fig',hfig,'axh',hax4);
-        curfilename = [fname,num2str(k,'%0.2d'),'.fig'];
-        saveas( hfig,fullfile(figdir,curfilename));
-        close(hfig);
+        if ~isempty(figname)
+          curfilename = [figname, num2str(k,'%0.2d'),'.fig'];
+          saveas(hfig,fullfile(figdir,curfilename));
+          close(hfig);
+        else
+            pause
+        end
     end
-end
+end % for k
+
+end % function
     
